@@ -42,7 +42,7 @@ common warnings
 library
     hs-source-dirs:   src
     build-depends:
-        base,
+        base, apecs,
         ghc-experimental
     default-language: GHC2021
     exposed-modules:
