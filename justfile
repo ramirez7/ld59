@@ -4,6 +4,9 @@ repl:
 build:
     wasm32-wasi-cabal build
 
-serve: build
+generate-ffi:
+    fd -I test.wasm dist-newstyle --exec ./generate-jsffi.sh {}
+
+serve: build generate-ffi
     fd -I test.wasm dist-newstyle --exec cp {} .
     python -m http.server 8001
