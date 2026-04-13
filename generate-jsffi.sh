@@ -1,21 +1,16 @@
 #!/bin/bash
+
 # Script to generate ghc_wasm_jsffi.js from the compiled wasm file
-# Usage: ./generate-jsffi.sh [path-to-wasm-file]
-
-WASM_FILE="${1:-dist-newstyle/build/wasm32-wasi/ghc-*/test/x/test/build/test/test.wasm}"
-OUTPUT_FILE="ghc_wasm_jsffi.js"
-
-# Find the wasm file if using default path
-if [ ! -f "$WASM_FILE" ]; then
-    # Try to find it in dist-newstyle
-    WASM_FILE=$(find dist-newstyle -name "test.wasm" -type f | head -n 1)
-fi
-
-if [ ! -f "$WASM_FILE" ]; then
-    echo "Error: Could not find test.wasm file"
-    echo "Please provide the path to the wasm file as an argument"
+# Usage: ./generate-jsffi.sh [exe-name]
+if [ -z "$1" ]; then
+    echo "No exe-name provided"
+    echo "Usage: ./generate-jsffi.sh [exe-name]"
     exit 1
 fi
+
+EXE="$1"
+WASM_FILE=$(fd -I "$EXE".wasm dist-newstyle | head -n1)
+OUTPUT_FILE="$EXE"_ghc_wasm_jsffi.js
 
 # Check if wasm32-wasi-ghc is available
 if ! command -v wasm32-wasi-ghc &> /dev/null; then
@@ -33,7 +28,7 @@ if [ ! -f "$POST_LINK" ]; then
     exit 1
 fi
 
-echo "Generating ghc_wasm_jsffi.js from $WASM_FILE..."
+echo "Generating $OUTPUT_FILE from $WASM_FILE..."
 node "$POST_LINK" -i "$WASM_FILE" -o "$OUTPUT_FILE"
 
 if [ $? -eq 0 ]; then

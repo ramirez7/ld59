@@ -27,7 +27,14 @@
           };
         in {
           devShells.default = pkgs.mkShell {
-            packages = [ pkgs.hello pkgs.python3 pkgs.just ghc-wasm-meta.packages.${system}.default ];
+            packages =
+              [ pkgs.hello
+                pkgs.python3
+                pkgs.just
+                pkgs.fd
+                ghc-wasm-meta.packages.${system}.default
+                pkgs.pkgsStatic.haskellPackages.cabal-gild
+              ];
             shellHook = ''
               ${pkgs.hello}/bin/hello
             '';

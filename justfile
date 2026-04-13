@@ -1,12 +1,17 @@
-repl:
-    wasm32-wasi-cabal repl --enable-multi-repl all
+repl exe:
+    wasm32-wasi-cabal repl --enable-multi-repl lib:test exe:{{exe}}
 
-build:
-    wasm32-wasi-cabal build
+build exe:
+    wasm32-wasi-cabal build exe:{{exe}}
 
-generate-ffi:
-    fd -I test.wasm dist-newstyle --exec ./generate-jsffi.sh {}
+generate-ffi exe:
+    ./generate-jsffi.sh {{exe}}
 
-serve: build generate-ffi
-    fd -I test.wasm dist-newstyle --exec cp {} .
-    python -m http.server 8001
+bundle exe: (build exe) (generate-ffi exe)
+    mkdir -p ./bundles/{{exe}}
+    mv {{exe}}_ghc_wasm_jsffi.js ./bundles/{{exe}}/
+    fd -I {{exe}}.wasm dist-newstyle --exec cp {} ./bundles/{{exe}}/
+    cp html/{{exe}}-index.html ./bundles/{{exe}}/index.html
+
+serve exe: (bundle exe)
+    python -m http.server 8001 --directory ./bundles/{{exe}}
