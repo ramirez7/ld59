@@ -13,11 +13,15 @@ module Lib where
 import GHC.Wasm.Prim
 
 import Data.String (IsString(..))
+import Data.Coerce
 
+import Pixi.Types qualified as Pixi
 -- | A JavaScript function represented as a JSVal.
 -- This type alias is used to represent callable JavaScript functions
 -- that can be passed between Haskell and JavaScript.
 type JSFunction = JSVal
+
+type IsJSVal a = Coercible a JSVal
 
 -- *****************************************************************************
 -- * PIXI.js Application Functions
@@ -27,7 +31,7 @@ type JSFunction = JSVal
 -- This creates a new PIXI Application object without initializing it.
 -- Use 'initApp' to initialize the application with configuration options.
 foreign import javascript unsafe "new PIXI.Application()"
-   newApp :: IO JSVal
+   newApp :: IO Pixi.Application
 
 -- | Creates a new PIXI.js Text object with the specified text and fill color.
 --
@@ -35,7 +39,7 @@ foreign import javascript unsafe "new PIXI.Application()"
 -- @param fillColor The fill color as a JavaScript string (e.g., "white", "#FF0000")
 -- @return A new Text object
 foreign import javascript unsafe "new PIXI.Text({text: $1, style: {fill: $2 }})"
-   newText :: JSString -> JSString -> IO JSVal
+   newText :: JSString -> JSString -> IO Pixi.Text
 
 -- | Initializes a PIXI.js Application with the given background color.
 --
@@ -68,7 +72,7 @@ foreign import javascript safe
   const r = await $1.init({background: $2, resizeTo: document.querySelector($3)});
   return $1
   """
-    initAppInTarget :: JSVal -> JSString -> JSString -> IO JSVal
+    initAppInTarget :: Pixi.Application -> JSString -> JSString -> IO Pixi.Application
 
 
 -- | Appends the application's canvas to the document body.
@@ -76,7 +80,7 @@ foreign import javascript safe
 --
 -- @param app The PIXI Application object whose canvas should be appended
 foreign import javascript unsafe "document.body.appendChild($1.canvas)"
-    appendCanvas :: JSVal -> IO ()
+    appendCanvas :: Pixi.Application -> IO ()
 
 
 -- | Appends the application's canvas to a target element specified by a CSS selector.
@@ -85,7 +89,8 @@ foreign import javascript unsafe "document.body.appendChild($1.canvas)"
 -- @param targetSelector The CSS selector for the target element (e.g., "#canvas-container")
 -- @param app The PIXI Application object whose canvas should be appended
 foreign import javascript unsafe "document.querySelector($1).appendChild($2.canvas)"
-    appendToTarget :: JSString -> JSVal -> IO ()
+    appendToTarget :: JSString -> Pixi.Application -> IO ()
+
 -- *****************************************************************************
 -- * Console Logging
 -- *****************************************************************************
@@ -114,7 +119,7 @@ consoleLogShow = consoleLogVal . stringAsVal . toJSString . show
 -- @param path The path to the asset as a JavaScript string
 -- @return The loaded texture as a JSVal
 foreign import javascript safe "const texture = await Assets.load($1); return texture"
-    loadAsset :: JSString -> IO JSVal
+    loadTexture :: JSString -> IO Pixi.Texture
 
 -- *****************************************************************************
 -- * Sprite Functions
@@ -125,7 +130,7 @@ foreign import javascript safe "const texture = await Assets.load($1); return te
 -- @param texture The texture to use for the sprite
 -- @return A new Sprite object
 foreign import javascript unsafe "new PIXI.Sprite($1)"
-    newSprite :: JSVal -> IO JSVal
+    newSprite :: Pixi.Texture -> IO Pixi.Sprite
 
 -- | Gets a base texture from PIXI's built-in texture cache.
 --
@@ -134,7 +139,7 @@ foreign import javascript unsafe "new PIXI.Sprite($1)"
 -- @param textureName The name of the texture (e.g., "WHITE")
 -- @return The texture object
 foreign import javascript unsafe "PIXI.Texture[$1]"
-   baseTexture :: JSString -> IO JSVal
+   baseTexture :: JSString -> IO Pixi.Texture
 
 -- | Plays a default blip sound effect.
 --
@@ -168,14 +173,22 @@ foreign import javascript unsafe "blip($1)"
 foreign import javascript unsafe "$1.anchor.set($2)"
     setAnchor :: JSVal -> Float -> IO ()
 
+setTextAnchor :: Pixi.Text -> Float -> IO ()
+setTextAnchor t f = setAnchor (coerce t) f
+
+setSpriteAnchor :: Pixi.Sprite -> Float -> IO ()
+setSpriteAnchor t f = setAnchor (coerce t) f
+
 -- | Adds a child object to the application's stage.
 -- This makes the child visible in the renderer.
 --
 -- @param app The PIXI Application object
 -- @param child The child object (e.g., a Sprite) to add to the stage
 foreign import javascript unsafe "$1.stage.addChild($2)"
-    addChild :: JSVal -> JSVal -> IO ()
+    addChild' :: Pixi.Application -> JSVal -> IO ()
 
+addChild :: IsJSVal a => Pixi.Application -> a -> IO ()
+addChild app a = addChild' app (coerce a)
 
 -- *****************************************************************************
 -- * Function Calling and Ticker
@@ -196,7 +209,7 @@ foreign import javascript unsafe "$1($2)"
 -- @param app The PIXI Application object
 -- @param func The function to call on each tick
 foreign import javascript unsafe "$1.ticker.add($2)"
-    addTicker :: JSVal -> JSFunction -> IO ()
+    addTicker :: Pixi.Application -> JSFunction -> IO ()
 
 -- | Creates a new PIXI.js Ticker instance.
 --
@@ -205,7 +218,7 @@ foreign import javascript unsafe "$1.ticker.add($2)"
 --
 -- @return A new Ticker object
 foreign import javascript unsafe "new PIXI.Ticker()"
-    newTicker :: IO JSVal
+    newTicker :: IO Pixi.Ticker
 
 -- | Adds a callback function to a ticker.
 --
@@ -214,13 +227,13 @@ foreign import javascript unsafe "new PIXI.Ticker()"
 -- @param ticker The ticker to add the callback to
 -- @param func The function to call on each tick
 foreign import javascript unsafe "$1.add($2)"
-    callAddTicker :: JSVal -> JSFunction -> IO ()
+    callAddTicker :: Pixi.Ticker -> JSFunction -> IO ()
 
 -- | Starts a ticker, causing it to begin calling its callbacks.
 --
 -- @param ticker The ticker to start
 foreign import javascript unsafe "$1.start()"
-    startTicker :: JSVal -> IO ()
+    startTicker :: Pixi.Ticker -> IO ()
 
 -- *****************************************************************************
 -- * JavaScript Interop Utilities
@@ -236,11 +249,11 @@ foreign import javascript "wrapper"
   jsFuncFromHs :: (JSVal -> IO JSVal) -> IO JSVal
 
 -- | Converts a Haskell function to a JavaScript function that does not return a value.
-jsFuncFromHs_ :: (JSVal -> IO ()) -> IO JSVal
+jsFuncFromHs_ :: IsJSVal a => (a -> IO ()) -> IO JSVal
 jsFuncFromHs_ func =
     jsFuncFromHs (\val -> do
-        func val
-        return val
+        func (coerce val)
+        return (coerce val)
     )
 
 -- | Gets a property from a JavaScript object.
@@ -249,13 +262,16 @@ jsFuncFromHs_ func =
 -- @param obj The JavaScript object
 -- @return The value of the property
 foreign import javascript "$2[$1]"
-  getProperty :: JSString -> JSVal -> IO JSVal
+  getProperty' :: JSString -> JSVal -> IO JSVal
+
+getProperty :: IsJSVal a => JSString -> a -> IO JSVal
+getProperty p v = getProperty' p (coerce v)
 
 -- | Gets a property from a JavaScript object by a list of keys.
-getPropertyKey :: [JSString] -> JSVal -> IO JSVal
+getPropertyKey :: IsJSVal a => [JSString] -> a -> IO JSVal
 getPropertyKey keys obj =
     case keys of
-        [] -> return obj
+        [] -> return (coerce obj)
         (k:ks) -> do
             tmp <- getProperty k obj
             getPropertyKey ks tmp
@@ -276,8 +292,10 @@ setPropertyKey keys obj value =
 -- @param obj The JavaScript object
 -- @param value The value to set
 foreign import javascript "$2[$1] = $3"
-  setProperty ::  JSString -> JSVal -> JSVal -> IO ()
+  setProperty' ::  JSString -> JSVal -> JSVal -> IO ()
 
+setProperty :: IsJSVal a => JSString -> a -> JSVal -> IO ()
+setProperty p o v = setProperty' p (coerce o) v
 
 -- *****************************************************************************
 -- * Type Conversion Functions
@@ -326,7 +344,10 @@ foreign import javascript "$1"
 -- @param obj The JavaScript object
 -- @param value The value to add to the property
 foreign import javascript "$2[$1] += $3"
-  incrementProperty :: JSString -> JSVal -> JSVal -> IO ()
+  incrementProperty' :: JSString -> JSVal -> JSVal -> IO ()
+
+incrementProperty :: IsJSVal a => JSString -> a -> JSVal -> IO ()
+incrementProperty s o v = incrementProperty' s (coerce o) v
 
 -- | Instance allowing JSString to be created from Haskell strings using
 -- string literals or 'fromString'. This enables convenient syntax like
@@ -338,7 +359,10 @@ instance IsString JSString where
 -- | Adds an event listener to a JavaScript object.
 --
 -- @param event The event to listen for (e.g., "click")
--- @param listener The function to call when the event occurs
 -- @param obj The JavaScript object to add the event listener to
+-- @param listener The function to call when the event occurs
 foreign import javascript unsafe "$2.on($1, $3)"
-  addEventListener :: JSString -> JSVal -> JSFunction -> IO ()
+  addEventListener' :: JSString -> JSVal -> JSFunction -> IO ()
+
+addEventListener :: IsJSVal a => JSString -> a -> JSFunction -> IO ()
+addEventListener e o l = addEventListener' e (coerce o) l

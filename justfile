@@ -15,3 +15,6 @@ bundle exe: (build exe) (generate-ffi exe)
 
 serve exe: (bundle exe)
     python -m http.server 8001 --directory ./bundles/{{exe}}
+
+gild:
+    cabal-gild --io=test.cabal

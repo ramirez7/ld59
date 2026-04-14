@@ -45,6 +45,7 @@ library
   -- cabal-gild: discover src
   exposed-modules:
     Lib
+    Pixi.Types
 
 executable ld59-prep
   import: warnings
@@ -55,11 +56,15 @@ executable ld59-prep
     -no-hs-main
     -optl-mexec-model=reactor
     "-optl-Wl,--export=main"
-   -- cabal-gild: discover games/ld59-prep --exclude=games/ld59-prep/Main.hs
+
+  -- cabal-gild: discover games/ld59-prep --exclude=games/ld59-prep/Main.hs
   other-modules:
   build-depends:
-  base,
-  ghc-experimental,
+
+  base ,
+
+  ghc-experimental ,
+
   test
 
 executable test
