@@ -72,14 +72,15 @@ executable test
   import: warnings
   -- .hs or .lhs file containing the Main module.
   main-is: Test.hs
-  -- Modules included in this executable, other than Main.
-  -- other-modules:
+  -- cabal-gild: discover app --exclude=app/Test.hs
+  other-modules: TestECS
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:
   -- Other library packages from which modules are imported.
   build-depends:
     base,
     ghc-experimental,
+    apecs,
     test
 
   -- Directories containing source files.

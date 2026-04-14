@@ -14,6 +14,8 @@ import Data.String (IsString(..))
 import Data.IORef (newIORef, readIORef, writeIORef, IORef)
 import Control.Monad (when)
 import Pixi.Types qualified as Pixi
+import Apecs qualified
+import TestECS
 
 -- Export the actual initialization function
 foreign export javascript "main" main :: IO ()
@@ -523,4 +525,14 @@ main = do
 
     -- Setup start message
     _start_text <- setupStartMessage app screen_width screen_height game_ticker
-    return ()
+    -- apecs init
+    w <- initWorld
+    frame_counter_text <- newText "-" "red"
+    fc_height <- valAsFloat <$> getProperty "height" frame_counter_text
+    setProperty "x" frame_counter_text (floatAsVal $ fromIntegral screen_width - 100)
+    setProperty "y" frame_counter_text (floatAsVal $ fromIntegral screen_height - fc_height)
+    addChild app frame_counter_text
+    let tickApecs = Apecs.runWith w $ do
+          Apecs.modify Apecs.global $ succ @FrameCounter
+          Apecs.get Apecs.global >>= \(FrameCounter fc) -> Apecs.liftIO $ setProperty "text" frame_counter_text (stringAsVal $ toJSString $ show fc ++ "f")
+    callAddTicker game_ticker =<< (jsFuncFromHs_ $ const tickApecs)
