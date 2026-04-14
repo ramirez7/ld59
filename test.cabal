@@ -32,6 +32,7 @@ source-repository head
 
 common warnings
   ghc-options: -Wall
+  cc-options: -Wnomain-return-type
 
 library
   hs-source-dirs: src
