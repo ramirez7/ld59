@@ -1,12 +1,7 @@
 import { WASI } from "https://cdn.jsdelivr.net/npm/@runno/wasi@0.7.0/dist/wasi.js";
 import ghc_wasm_jsffi from "./test_ghc_wasm_jsffi.js";
+import "./pixi-export.js"
 
-// Make PIXI available globally for the WASM module
-window.PIXI = PIXI;
-window.Application = PIXI.Application;
-window.Sprite = PIXI.Sprite;
-window.Assets = PIXI.Assets;
-window.HTMLText = PIXI.HTMLText;
 
 const audio_context = new AudioContext();
 const master = audio_context.createGain();
