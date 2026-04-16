@@ -9,6 +9,7 @@ generate-ffi exe:
 
 bundle exe: (build exe) (generate-ffi exe)
     mkdir -p ./bundles/{{exe}}
+    rm -r ./bundles/{{exe}}/*
     mv {{exe}}_ghc_wasm_jsffi.js ./bundles/{{exe}}/
     fd -I {{exe}}.wasm dist-newstyle --exec cp {} ./bundles/{{exe}}/
     cp static/{{exe}}/* ./bundles/{{exe}}/
