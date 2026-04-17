@@ -1,5 +1,5 @@
 import { WASI } from "https://cdn.jsdelivr.net/npm/@runno/wasi@0.7.0/dist/wasi.js";
-const { default: ghc_wasm_jsffi } = await import(`./${window.exe}_ghc_wasm_jsffi.js`);
+import ghc_wasm_jsffi from "./ghc_wasm_jsffi.js";
 
 // Check for WebAssembly support
 if ("WebAssembly" in window) {
@@ -27,7 +27,7 @@ if ("WebAssembly" in window) {
 
         console.log('Fetching and instantiating WASM...');
         const result = await WebAssembly.instantiateStreaming(
-            fetch(`./${window.exe}.wasm`),
+            fetch(`./main.wasm`),
             importObject
         );
 
