@@ -8,7 +8,7 @@ import Apecs
 import Data.Word (Word64)
 import Pixi.Types qualified as Pixi
 
-data Logo = Logo { logoSeq :: Word64, logoSprite :: Pixi.Sprite }}
+data Logo = Logo { logoSeq :: Word64, logoSprite :: Pixi.Sprite }
 
 instance Component Logo where type Storage Logo = Map Logo
 

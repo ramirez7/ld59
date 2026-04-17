@@ -62,7 +62,9 @@ executable ld59-prep
   build-depends:
     base,
     ghc-experimental,
-    test
+    test,
+    safe,
+    apecs
 
 executable test
   -- Import common warning flags.

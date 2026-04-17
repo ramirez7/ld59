@@ -132,6 +132,9 @@ foreign import javascript safe "const texture = await Assets.load($1); return te
 foreign import javascript unsafe "new PIXI.Sprite($1)"
     newSprite :: Pixi.Texture -> IO Pixi.Sprite
 
+foreign import javascript unsafe "$1.destroy()"
+  destroySprite :: Pixi.Sprite -> IO ()
+
 -- | Gets a base texture from PIXI's built-in texture cache.
 --
 -- Common texture names include "WHITE" for a white rectangle texture.
@@ -277,7 +280,7 @@ getPropertyKey keys obj =
             getPropertyKey ks tmp
 
 -- | Sets a property on a JavaScript object by a list of keys.
-setPropertyKey :: [JSString] -> JSVal -> JSVal -> IO ()
+setPropertyKey ::  IsJSVal a => [JSString] -> a -> JSVal -> IO ()
 setPropertyKey keys obj value =
     case keys of
         [k] -> setProperty k obj value
