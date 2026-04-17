@@ -55,17 +55,14 @@ executable ld59-prep
   ghc-options:
     -no-hs-main
     -optl-mexec-model=reactor
-    "-optl-Wl,--export=main"
+    "-optl-Wl,--export=wasmMain"
 
   -- cabal-gild: discover games/ld59-prep --exclude=games/ld59-prep/Main.hs
   other-modules:
   build-depends:
-
-  base ,
-
-  ghc-experimental ,
-
-  test
+    base,
+    ghc-experimental,
+    test
 
 executable test
   -- Import common warning flags.
@@ -78,9 +75,9 @@ executable test
   -- other-extensions:
   -- Other library packages from which modules are imported.
   build-depends:
+    apecs,
     base,
     ghc-experimental,
-    apecs,
     test
 
   -- Directories containing source files.
