@@ -23,4 +23,5 @@ window.blip = (freq = 440, ms = 80, vol = 0.2) => {
     oscillator.stop(t0 + attack + release + 0.02);
 }
 
-import "./wasm-init.js"
+import wasm_init from "./wasm-init.js"
+wasm_init();
