@@ -14,8 +14,7 @@ bundle exe deploy='cp': (build exe) (generate-ffi exe)
     fd -I {{exe}}.wasm dist-newstyle --exec {{deploy}} {} ./bundles/{{exe}}/main.wasm
     {{deploy}} static/{{exe}}/* ./bundles/{{exe}}/
 
-serve exe: (bundle exe)
-    python -m http.server 8001 --directory ./bundles/{{exe}}
-
+serve exe: (bundle exe 'ln -sr')
+    http-server -c-1 --port 8001 ./bundles/{{exe}}
 gild:
     cabal-gild --io=test.cabal

@@ -29,7 +29,7 @@
           devShells.default = pkgs.mkShell {
             packages =
               [ pkgs.hello
-                pkgs.python3
+                pkgs.http-server
                 pkgs.just
                 pkgs.fd
                 ghc-wasm-meta.packages.${system}.default
