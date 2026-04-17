@@ -1,7 +1,7 @@
 import { WASI } from "https://cdn.jsdelivr.net/npm/@runno/wasi@0.7.0/dist/wasi.js";
 import ghc_wasm_jsffi from "./ghc_wasm_jsffi.js";
 
-export default async () => {
+export default async ({ onWasmUnsupported, onWasmLoadSuccess, onWasmLoadFailed }) => {
     // Check for WebAssembly support
     if ("WebAssembly" in window) {
         const wasi = new WASI({
@@ -62,23 +62,11 @@ export default async () => {
                 console.log('No wasmMain export found in test.wasm.');
                 console.log('Available exports:', Object.keys(instance.exports));
             }
-            // Update status on success
-            const statusDiv = document.querySelector('.status');
-            if (statusDiv) {
-                statusDiv.innerHTML = '<h2>Status</h2><p>✓ WebAssembly module loaded successfully!</p>';
-            }
+            onWasmLoadSuccess();
         } catch (error) {
-            console.error('Error loading WASM:', error);
-            console.error('Error stack:', error.stack);
-            const contentDiv = document.querySelector('.content');
-            if (contentDiv) {
-                contentDiv.innerHTML += `<div class="error">Error loading WASM: ${error.message}\n${error.stack}</div>`;
-            }
+            onWasmLoadFailed(error);
         }
     } else {
-        const contentDiv = document.querySelector('.content');
-        if (contentDiv) {
-            contentDiv.innerHTML += '<div class="error">This browser does not support WebAssembly.</div>';
-        }
+        onWasmUnsupported();
     }
 }

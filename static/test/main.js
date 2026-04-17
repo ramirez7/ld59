@@ -24,4 +24,26 @@ window.blip = (freq = 440, ms = 80, vol = 0.2) => {
 }
 
 import wasm_init from "./wasm-init.js"
-wasm_init();
+wasm_init({
+    onWasmUnsupported: () => {
+        const contentDiv = document.querySelector('.content');
+        if (contentDiv) {
+            contentDiv.innerHTML += '<div class="error">This browser does not support WebAssembly.</div>';
+        }
+    },
+    onWasmLoadSuccess: () => {
+        // Update status on success
+        const statusDiv = document.querySelector('.status');
+        if (statusDiv) {
+            statusDiv.innerHTML = '<h2>Status</h2><p>✓ WebAssembly module loaded successfully!</p>';
+        }
+    },
+    onWasmLoadFailed: (error) => {
+        console.error('Error loading WASM:', error);
+        console.error('Error stack:', error.stack);
+        const contentDiv = document.querySelector('.content');
+        if (contentDiv) {
+            contentDiv.innerHTML += `<div class="error">Error loading WASM: ${error.message}\n${error.stack}</div>`;
+        }
+    }
+});
