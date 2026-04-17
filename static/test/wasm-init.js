@@ -55,11 +55,11 @@ export default async () => {
             console.log('WASI initialized');
 
             // Call the exported main function
-            if (instance.exports.main) {
-                console.log('Calling main...');
-                instance.exports.main();
+            if (instance.exports.wasmMain) {
+                console.log('Calling wasmMain...');
+                instance.exports.wasmMain();
             } else {
-                console.log('No main export found in test.wasm.');
+                console.log('No wasmMain export found in test.wasm.');
                 console.log('Available exports:', Object.keys(instance.exports));
             }
             // Update status on success

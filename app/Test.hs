@@ -18,7 +18,7 @@ import Apecs qualified
 import TestECS
 
 -- Export the actual initialization function
-foreign export javascript "main" main :: IO ()
+foreign export javascript "wasmMain" main :: IO ()
 
 -- *****************************************************************************
 -- * Game Constants

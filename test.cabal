@@ -91,4 +91,4 @@ executable test
   ghc-options:
     -no-hs-main
     -optl-mexec-model=reactor
-    "-optl-Wl,--export=main"
+    "-optl-Wl,--export=wasmMain"
