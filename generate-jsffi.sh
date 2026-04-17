@@ -10,7 +10,8 @@ fi
 
 EXE="$1"
 WASM_FILE=$(fd -I "$EXE".wasm dist-newstyle | head -n1)
-OUTPUT_FILE="$EXE"_ghc_wasm_jsffi.js
+mkdir -p .jsffi
+OUTPUT_FILE=./.jsffi/"$EXE"_ghc_wasm_jsffi.js
 
 # Check if wasm32-wasi-ghc is available
 if ! command -v wasm32-wasi-ghc &> /dev/null; then

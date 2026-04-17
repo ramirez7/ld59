@@ -4,3 +4,4 @@ dist-newstyle
 *.wasm
 *_ghc_wasm_jsffi.js
 bundles
+.jsffi
