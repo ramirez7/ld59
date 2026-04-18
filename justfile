@@ -26,4 +26,4 @@ zip exe: (bundle exe)
     zip -d ld59-prep.zip '*~'
 
 gild:
-    cabal-gild --io=test.cabal
+    fd .cabal --exec cabal-gild --io={}

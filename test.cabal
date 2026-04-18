@@ -58,13 +58,13 @@ executable ld59-prep
     "-optl-Wl,--export=wasmMain"
 
   -- cabal-gild: discover games/ld59-prep --exclude=games/ld59-prep/Main.hs
-  other-modules:
+  other-modules: PrepECS
   build-depends:
+    apecs,
     base,
     ghc-experimental,
-    test,
     safe,
-    apecs
+    test
 
 executable test
   -- Import common warning flags.
