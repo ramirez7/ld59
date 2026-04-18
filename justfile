@@ -9,7 +9,7 @@ generate-ffi exe:
 
 bundle exe deploy='cp': (build exe) (generate-ffi exe)
     mkdir -p ./bundles/{{exe}}
-    rm -r ./bundles/{{exe}}/*
+    rm -rf ./bundles/{{exe}}/*
     {{deploy}} ./.jsffi/{{exe}}_ghc_wasm_jsffi.js ./bundles/{{exe}}/ghc_wasm_jsffi.js
     fd -I {{exe}}.wasm dist-newstyle --exec {{deploy}} {} ./bundles/{{exe}}/main.wasm
     {{deploy}} static/{{exe}}/* ./bundles/{{exe}}/
