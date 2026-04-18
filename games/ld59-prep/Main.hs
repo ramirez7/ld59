@@ -8,7 +8,6 @@ import Control.Monad (when)
 import GHC.Wasm.Prim
 import Pixi.Types qualified as Pixi
 import Apecs
-import Data.Maybe (fromMaybe)
 import PrepECS
 import Data.Function (on)
 import Safe (maximumMay, minimumByMay)
@@ -38,6 +37,7 @@ main = do
   logoTexture <- loadTexture logo_url
   world <- initWorld
   let click = \(event::JSVal) -> Apecs.runWith world $ do
+        liftIO $ consoleLogVal (stringAsVal "HIHIHI")
         x <- liftIO $ getPropertyKey ["global", "x"] event
         y <- liftIO $ getPropertyKey ["global", "y"] event
         sprite <- liftIO $ newSprite logoTexture
@@ -46,12 +46,13 @@ main = do
           setSpriteAnchor sprite 0.5
           setProperty "x" sprite x
           setProperty "y" sprite y
+          addChild app sprite
 
         logoEtys <- cfold (\ls l@(Logo{}, _::Entity) -> l : ls) []
         let ns = fmap (\(Logo{..}, _) -> logoSeq) logoEtys
-        let n' = fromMaybe 0 $ maximumMay ns
+        let n' = maybe 0 succ $ maximumMay ns
         _ <- newEntity Logo {logoSeq = n', logoSprite = sprite}
-        when (length logoEtys > maxLogos) $
+        when (length logoEtys > maxLogos - 1) $
           for_ (minimumByMay (compare `on` logoSeq . fst) logoEtys) $ \(Logo{..}, ety) -> do
             liftIO $ destroySprite logoSprite
             destroy ety (Proxy @Logo)
