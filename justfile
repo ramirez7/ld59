@@ -1,5 +1,5 @@
 repl exe:
-    wasm32-wasi-cabal repl --enable-multi-repl lib:test exe:{{exe}}
+    wasm32-wasi-cabal repl --enable-multi-repl pixi-js jsffi-typed lib:test exe:{{exe}}
 
 build exe:
     wasm32-wasi-cabal build exe:{{exe}}
