@@ -1,0 +1,29 @@
+repl exe:
+    wasm32-wasi-cabal repl --enable-multi-repl pixi-js jsffi-typed lib:test exe:{{exe}}
+
+build exe:
+    wasm32-wasi-cabal build exe:{{exe}}
+
+# UNTESTED
+reload exe: (bundle exe 'ln -sr')
+
+generate-ffi exe:
+    ./generate-jsffi.sh {{exe}}
+
+bundle exe deploy='cp': (build exe) (generate-ffi exe)
+    mkdir -p ./bundles/{{exe}}
+    rm -rf ./bundles/{{exe}}/*
+    {{deploy}} ./.jsffi/{{exe}}_ghc_wasm_jsffi.js ./bundles/{{exe}}/ghc_wasm_jsffi.js
+    fd -I {{exe}}.wasm dist-newstyle --exec {{deploy}} {} ./bundles/{{exe}}/main.wasm
+    {{deploy}} static/{{exe}}/* ./bundles/{{exe}}/
+
+serve exe: (bundle exe 'ln -sr')
+    http-server -c-1 --port 8001 ./bundles/{{exe}}
+
+# UNTESTED
+zip exe: (bundle exe)
+    zip -rj ld59-prep.zip bundles/ld59-prep/*
+    zip -d ld59-prep.zip '*~'
+
+gild:
+    fd .cabal --exec cabal-gild --io={}

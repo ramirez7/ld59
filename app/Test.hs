@@ -13,9 +13,12 @@ import GHC.Wasm.Prim
 import Data.String (IsString(..))
 import Data.IORef (newIORef, readIORef, writeIORef, IORef)
 import Control.Monad (when)
+import Pixi.Types qualified as Pixi
+import Apecs qualified
+import TestECS
 
 -- Export the actual initialization function
-foreign export javascript "main" main :: IO ()
+foreign export javascript "wasmMain" main :: IO ()
 
 -- *****************************************************************************
 -- * Game Constants
@@ -121,7 +124,7 @@ type Paddle = (Float, Float, Float)
 
 -- | Rotates the sprite by the delta time.
 -- This is a visual effect that rotates the ball sprite continuously.
-rotateSprite :: JSVal -> JSVal -> IO ()
+rotateSprite :: Pixi.Sprite -> JSVal -> IO ()
 rotateSprite sprite time = do
     dt <- valAsFloat <$> getProperty "deltaTime" time
     incrementProperty "rotation" sprite (floatAsVal $ dt * ball_rotation_speed)
@@ -130,7 +133,7 @@ rotateSprite sprite time = do
 --
 -- @param ball The current ball state
 -- @param sprite The PIXI sprite representing the ball
-renderBall :: BallState -> JSVal -> IO ()
+renderBall :: BallState -> Pixi.Sprite -> IO ()
 renderBall ball sprite = do
     setProperty "x" sprite (floatAsVal $ ball.ballX)
     setProperty "y" sprite (floatAsVal $ ball.ballY)
@@ -273,7 +276,7 @@ updateBallState ball dt (screen_width, screen_height) bottom_paddle top_paddle =
 -- @param screen_width Width of the screen (for boundary clamping)
 -- @param computer_paddle The PIXI sprite representing the computer paddle
 -- @param ticker The ticker object providing deltaTime
-updateComputerPaddle :: IORef BallState -> Float -> JSVal -> JSVal -> IO ()
+updateComputerPaddle :: IORef BallState -> Float -> Pixi.Sprite -> Pixi.Ticker -> IO ()
 updateComputerPaddle ball_state_ref screen_width computer_paddle ticker = do
     ball_state <- readIORef ball_state_ref
     dt <- valAsFloat <$> getProperty "deltaTime" ticker
@@ -293,7 +296,7 @@ updateComputerPaddle ball_state_ref screen_width computer_paddle ticker = do
 --
 -- @param score Current score state
 -- @param score_text The PIXI text object displaying the score
-updateScoreDisplay :: ScoreState -> JSVal -> IO ()
+updateScoreDisplay :: ScoreState -> Pixi.Text -> IO ()
 updateScoreDisplay score score_text = do
     let score_str = show score.playerScore ++ " - " ++ show score.computerScore
     setProperty "text" score_text (stringAsVal $ toJSString score_str)
@@ -311,7 +314,7 @@ updateScoreDisplay score score_text = do
 -- @param top_paddle The computer's paddle sprite
 -- @param score_text The PIXI text object for score display
 -- @param ticker The ticker object providing deltaTime
-updateGamePhysics :: IORef BallState -> IORef ScoreState -> Screen -> JSVal -> JSVal -> JSVal -> JSVal -> JSVal -> IO ()
+updateGamePhysics :: IORef BallState -> IORef ScoreState -> Screen -> Pixi.Sprite -> Pixi.Sprite -> Pixi.Sprite -> Pixi.Text -> Pixi.Ticker -> IO ()
 updateGamePhysics ball_state_ref score_state_ref screen sprite bottom_paddle top_paddle score_text ticker = do
     ball_state <- readIORef ball_state_ref
     dt <- valAsFloat <$> getProperty "deltaTime" ticker
@@ -359,13 +362,13 @@ updateGamePhysics ball_state_ref score_state_ref screen sprite bottom_paddle top
 -- @param x X position (center)
 -- @param y Y position (center)
 -- @return The configured paddle sprite
-createPaddle :: JSVal -> Float -> Float -> IO JSVal
+createPaddle :: Pixi.Application -> Float -> Float -> IO Pixi.Sprite
 createPaddle app x y = do
     paddle <- baseTexture "WHITE" >>= newSprite
     setProperty "eventMode" paddle (stringAsVal "static")
     setProperty "width" paddle (floatAsVal paddle_width)
     setProperty "height" paddle (floatAsVal paddle_height)
-    setAnchor paddle 0.5
+    setSpriteAnchor paddle 0.5
     setProperty "x" paddle (floatAsVal x)
     setProperty "y" paddle (floatAsVal y)
     addChild app paddle
@@ -376,7 +379,7 @@ createPaddle app x y = do
 -- @param app The PIXI application
 -- @param paddle The paddle sprite to control
 -- @param screen_width Screen width for boundary checking
-setupPlayerPaddle :: JSVal -> JSVal -> Int -> IO ()
+setupPlayerPaddle :: Pixi.Application -> Pixi.Sprite -> Int -> IO ()
 setupPlayerPaddle app paddle screen_width = do
     addEventListener "globalpointermove" paddle =<< jsFuncFromHs_
       (\event -> do
@@ -389,7 +392,7 @@ setupPlayerPaddle app paddle screen_width = do
 --
 -- @param app The PIXI application
 -- @return The FPS counter text sprite
-setupFPSCounter :: JSVal -> IO JSVal
+setupFPSCounter :: Pixi.Application -> IO Pixi.Text
 setupFPSCounter app = do
     fps_counter <- newText "0" "white"
     setProperty "x" fps_counter (floatAsVal fps_counter_x)
@@ -413,7 +416,7 @@ setupFPSCounter app = do
 -- @param screen_width Screen width for positioning
 -- @param initial_score Initial score state
 -- @return The score text sprite
-setupScoreDisplay :: JSVal -> Int -> ScoreState -> IO JSVal
+setupScoreDisplay :: Pixi.Application -> Int -> ScoreState -> IO Pixi.Text
 setupScoreDisplay app screen_width initial_score = do
     score_text <- newText "0 - 0" "white"
     setProperty "x" score_text (floatAsVal $ fromIntegral screen_width - score_text_x_offset)
@@ -429,11 +432,11 @@ setupScoreDisplay app screen_width initial_score = do
 -- @param screen_height Screen height for centering
 -- @param game_ticker The game ticker to start on click
 -- @return The start message text sprite
-setupStartMessage :: JSVal -> Int -> Int -> JSVal -> IO JSVal
+setupStartMessage :: Pixi.Application -> Int -> Int -> Pixi.Ticker -> IO Pixi.Text
 setupStartMessage app screen_width screen_height game_ticker = do
     start_text <- newText "Click to start" "white"
     setProperty "eventMode" start_text (stringAsVal "static")
-    setAnchor start_text 0.5
+    setTextAnchor start_text 0.5
     setProperty "x" start_text (floatAsVal $ fromIntegral screen_width / 2.0)
     setProperty "y" start_text (floatAsVal $ fromIntegral screen_height / 2.0 - start_message_y_offset)
     setProperty "hitArea" start_text =<< getProperty "screen" app
@@ -485,9 +488,9 @@ main = do
 
     -- Load ball sprite
     let ball_image_url = "https://haskell.foundation/assets/images/logos/hf-logo-100-alpha.png"
-    sprite <- loadAsset ball_image_url >>= newSprite
+    sprite <- loadTexture ball_image_url >>= newSprite
     setProperty "eventMode" sprite (stringAsVal "static")
-    setAnchor sprite 0.5
+    setSpriteAnchor sprite 0.5
 
     -- Initialize game state
     let (initial_ball, initial_score) = initializeGameState screen_width screen_height
@@ -522,4 +525,14 @@ main = do
 
     -- Setup start message
     _start_text <- setupStartMessage app screen_width screen_height game_ticker
-    return ()
+    -- apecs init
+    w <- initWorld
+    frame_counter_text <- newText "-" "red"
+    fc_height <- valAsFloat <$> getProperty "height" frame_counter_text
+    setProperty "x" frame_counter_text (floatAsVal $ fromIntegral screen_width - 100)
+    setProperty "y" frame_counter_text (floatAsVal $ fromIntegral screen_height - fc_height)
+    addChild app frame_counter_text
+    let tickApecs = Apecs.runWith w $ do
+          Apecs.modify Apecs.global $ succ @FrameCounter
+          Apecs.get Apecs.global >>= \(FrameCounter fc) -> Apecs.liftIO $ setProperty "text" frame_counter_text (stringAsVal $ toJSString $ show fc ++ "f")
+    callAddTicker game_ticker =<< (jsFuncFromHs_ $ const tickApecs)

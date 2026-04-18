@@ -2,4 +2,7 @@
 *.o
 dist-newstyle
 *.wasm
-*.js
+*_ghc_wasm_jsffi.js
+bundles
+.jsffi
+*.zip
