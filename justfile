@@ -4,6 +4,9 @@ repl exe:
 build exe:
     wasm32-wasi-cabal build exe:{{exe}}
 
+# UNTESTED
+reload exe: (bundle exe 'ln -sr')
+
 generate-ffi exe:
     ./generate-jsffi.sh {{exe}}
 
@@ -16,5 +19,11 @@ bundle exe deploy='cp': (build exe) (generate-ffi exe)
 
 serve exe: (bundle exe 'ln -sr')
     http-server -c-1 --port 8001 ./bundles/{{exe}}
+
+# UNTESTED
+zip exe: (bundle exe)
+    zip -rj ld59-prep.zip bundles/ld59-prep/*
+    zip -d ld59-prep.zip '*~'
+
 gild:
     cabal-gild --io=test.cabal
