@@ -57,6 +57,22 @@
         "type": "gitlab"
       }
     },
+    "jfxr": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1775801553,
+        "narHash": "sha256-dqMcku/AJVX29cTUnoEU1nizd2uV2xXALDOLlvuLlmU=",
+        "owner": "ttencate",
+        "repo": "jfxr",
+        "rev": "6c2296a65c470f1f0641f3952d4d822b7f16fe36",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ttencate",
+        "repo": "jfxr",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1774399958,
@@ -93,6 +109,7 @@
       "inputs": {
         "flake-utils": "flake-utils",
         "ghc-wasm-meta": "ghc-wasm-meta",
+        "jfxr": "jfxr",
         "nixpkgs": "nixpkgs_2"
       }
     },
