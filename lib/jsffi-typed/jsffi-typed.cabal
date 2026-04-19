@@ -19,9 +19,12 @@ common warnings
 library
   import: warnings
   -- cabal-gild: discover src
-  exposed-modules: MyLib
+  exposed-modules: JSFFI.Typed
   -- other-modules:
   -- other-extensions:
-  build-depends: base >=4.20.2.0
+  build-depends:
+    base >=4.20.2.0,
+    ghc-experimental,
+
   hs-source-dirs: src
   default-language: GHC2024
