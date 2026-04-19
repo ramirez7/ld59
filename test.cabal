@@ -77,11 +77,18 @@ executable ld59
     "-optl-Wl,--export=wasmMain"
 
   -- cabal-gild: discover games/ld59 --exclude=games/ld59/Main.hs
-  other-modules: LD59.World
+  other-modules:
+    LD59.Snake
+    LD59.World
+
   build-depends:
     apecs,
     base,
+    containers,
+    extra,
     ghc-experimental,
+    lens,
+    linear,
     safe,
     test
 
