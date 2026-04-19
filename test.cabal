@@ -88,6 +88,7 @@ executable ld59
     extra,
     ghc-experimental,
     lens,
+    generic-lens,
     linear,
     safe,
     test

@@ -1,4 +1,5 @@
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NegativeLiterals #-}
 {-# LANGUAGE DerivingStrategies #-}
@@ -8,9 +9,13 @@ module LD59.Snake where
 
 import Data.Map qualified as Map
 import Linear.V2
-import Data.Foldable (for_, traverse_)
-import Control.Lens (view)
+import Data.Foldable (toList, for_, traverse_)
+import Control.Lens (view, (%~), (&))
 import Apecs
+import GHC.Generics
+import Data.Generics.Labels ()
+import Data.List.NonEmpty (NonEmpty((:|)))
+import Data.List.NonEmpty qualified as NEL
 
 data Dir = UP | DOWN | LEFT | RIGHT
   deriving stock (Show)
@@ -25,20 +30,31 @@ dirV2 = \case
 data SnakeHead h = SnakeHead
   { snakeHeadVal :: h
   , snakeHeadPos :: V2 Int
-  } deriving stock (Show)
+  } deriving stock (Show, Generic)
 
 data SnakeTail t = SnakeTail
   { snakeTailVal :: t
   , snakeTailPos :: V2 Int
-  } deriving stock (Show)
+  } deriving stock (Show, Generic)
 
 data SnakeF h t = Snake
   { snakeHead :: SnakeHead h
   , snakeTail :: [SnakeTail t]
   , snakeNext :: V2 Int
-  } deriving stock (Show)
+  } deriving stock (Show, Generic)
 
-
+-- This doesn't stop you from moving into the tail
+moveSnake :: Dir -> SnakeF h t -> SnakeF h t
+moveSnake dir Snake{..} =
+  let tailPs = fmap snakeTailPos snakeTail
+      snakePs = snakeHeadPos snakeHead :| tailPs
+      nextHeadPos = snakeHeadPos snakeHead + dirV2 dir
+  in Snake
+     { snakeHead = snakeHead & #snakeHeadPos %~ (+ dirV2 dir)
+     , snakeTail = zipWith (\p' SnakeTail{..} -> SnakeTail{snakeTailPos = p', ..}) (toList snakePs) snakeTail
+     , snakeNext = NEL.last snakePs
+     }
+  
 
 type Snake = SnakeF () ()
 instance Component (SnakeF h t) where type Storage (SnakeF h t) = Unique (SnakeF h t)
@@ -66,7 +82,7 @@ printSnake2D Snake{..} = do
   traverse_ (putStr . (++ " ") . show) [0..maxX]
   putStrLn ""
   
-  for_ (zip [0..] coords) $ \(rowNo, row) -> do
+  for_ (zip [(0 :: Int)..] coords) $ \(rowNo, row) -> do
     putStr (show rowNo ++ " ")
     for_ row $ \c ->
       putStr $ maybe "_ " (:" ") c
