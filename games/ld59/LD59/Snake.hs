@@ -1,4 +1,6 @@
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NegativeLiterals #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE TypeFamilies #-}
 
@@ -13,30 +15,42 @@ import Apecs
 data Dir = UP | DOWN | LEFT | RIGHT
   deriving stock (Show)
 
-data SnakeHead = SnakeHead
-  { snakeHeadPos :: V2 Int
+dirV2 :: Dir -> V2 Int
+dirV2 = \case
+  UP -> V2 0 -1
+  DOWN -> V2 0 1
+  LEFT -> V2 -1 0
+  RIGHT -> V2 1 0
+
+data SnakeHead h = SnakeHead
+  { snakeHeadVal :: h
+  , snakeHeadPos :: V2 Int
   } deriving stock (Show)
 
-data SnakeTail = SnakeTail
-  { snakeTailPos :: V2 Int
+data SnakeTail t = SnakeTail
+  { snakeTailVal :: t
+  , snakeTailPos :: V2 Int
   } deriving stock (Show)
 
-data Snake = Snake
-  { snakeHead :: SnakeHead
-  , snakeTail :: [SnakeTail]
+data SnakeF h t = Snake
+  { snakeHead :: SnakeHead h
+  , snakeTail :: [SnakeTail t]
   , snakeNext :: V2 Int
   } deriving stock (Show)
 
-instance Component Snake where type Storage Snake = Unique Snake
+
+
+type Snake = SnakeF () ()
+instance Component (SnakeF h t) where type Storage (SnakeF h t) = Unique (SnakeF h t)
 
 exampleSnake :: Snake
 exampleSnake = Snake
-  { snakeHead = SnakeHead $ V2 3 3
-  , snakeTail = SnakeTail <$> [V2 3 2, V2 2 2, V2 2 1, V2 2 0]
+  { snakeHead = SnakeHead () $ V2 3 3
+  , snakeTail = SnakeTail () <$> [V2 3 2, V2 2 2, V2 2 1, V2 2 0]
   , snakeNext = V2 1 0
   }
 
-printSnake2D :: Snake -> IO ()
+printSnake2D :: SnakeF h t -> IO ()
 printSnake2D Snake{..} = do
   let ps = mconcat
         [[(snakeHeadPos snakeHead, 'H')]
