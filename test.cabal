@@ -66,6 +66,25 @@ executable ld59-prep
     safe,
     test
 
+executable ld59
+  import: warnings
+  hs-source-dirs: games/ld59
+  main-is: Main.hs
+  default-language: GHC2021
+  ghc-options:
+    -no-hs-main
+    -optl-mexec-model=reactor
+    "-optl-Wl,--export=wasmMain"
+
+  -- cabal-gild: discover games/ld59 --exclude=games/ld59/Main.hs
+  other-modules: LD59.World
+  build-depends:
+    apecs,
+    base,
+    ghc-experimental,
+    safe,
+    test
+
 executable test
   -- Import common warning flags.
   import: warnings

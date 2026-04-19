@@ -40,7 +40,6 @@
                 pkgs.fd
                 ghc-wasm-meta.packages.${system}.default
                 pkgs.pkgsStatic.haskellPackages.cabal-gild
-                (pkgs.haskell.lib.unmarkBroken pkgs.pkgsStatic.haskellPackages.json-autotype)
               ];
             shellHook = ''
               ${pkgs.hello}/bin/hello
