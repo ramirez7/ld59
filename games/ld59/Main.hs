@@ -50,6 +50,7 @@ main = do
         gateScreen Playing $ do
           tickFrame
           tickSnake
+          tickFoodSpawn app art
         syncSnakeArt
         )
                                                  

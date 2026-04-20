@@ -17,7 +17,7 @@ newFood app art p = do
   tailSprite <- liftIO $ newSprite (artTailTexture art)
   liftIO $ addChild app tailSprite
   liftIO $ setSpritePos tailSprite p
-  newEntity_ $ Food Tail{..} (V2 10 10)
+  newEntity_ $ Food Tail{..} p
 
 initGame :: Pixi.Application -> Art -> System World ()
 initGame app art = do
