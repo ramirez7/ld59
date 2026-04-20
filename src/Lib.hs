@@ -23,6 +23,9 @@ type JSFunction = JSVal
 
 type IsJSVal a = Coercible a JSVal
 
+foreign import javascript unsafe "Math.random()"
+  jsRandom :: IO Float
+
 -- *****************************************************************************
 -- * PIXI.js Application Functions
 -- *****************************************************************************
