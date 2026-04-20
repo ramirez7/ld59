@@ -10,7 +10,8 @@ module LD59.Snake where
 import Data.Map qualified as Map
 import Linear.V2
 import Data.Foldable (toList, for_, traverse_)
-import Control.Lens (view, (%~), (&))
+import Data.List (scanl')
+import Control.Lens
 import Apecs
 import GHC.Generics
 import Data.Generics.Labels ()
@@ -30,48 +31,48 @@ dirV2 = \case
 data SnakeHead h = SnakeHead
   { snakeHeadVal :: h
   , snakeHeadPos :: V2 Int
+  , snakeHeadDir :: Dir
   } deriving stock (Show, Generic)
 
 data SnakeTail t = SnakeTail
   { snakeTailVal :: t
-  , snakeTailPos :: V2 Int
+  , snakeTailDir :: Dir
   } deriving stock (Show, Generic)
 
 data SnakeF h t = Snake
   { snakeHead :: SnakeHead h
   , snakeTail :: [SnakeTail t]
-  , snakeNext :: V2 Int
   } deriving stock (Show, Generic)
 
+snakeLocateTail :: SnakeF h t -> [V2 Int]
+snakeLocateTail Snake{..} =
+  drop 1 $ scanl' (\p dir -> p + (negate $ dirV2 dir)) (snakeHeadPos snakeHead) (snakeHeadDir snakeHead : fmap snakeTailDir snakeTail)
 -- This doesn't stop you from moving into the tail
 moveSnake :: Dir -> SnakeF h t -> SnakeF h t
 moveSnake dir Snake{..} =
-  let tailPs = fmap snakeTailPos snakeTail
-      snakePs = snakeHeadPos snakeHead :| tailPs
-      nextHeadPos = snakeHeadPos snakeHead + dirV2 dir
+  let tailDirs = fmap snakeTailDir snakeTail
+      snakeDirs = snakeHeadDir snakeHead :| tailDirs
   in Snake
-     { snakeHead = snakeHead & #snakeHeadPos %~ (+ dirV2 dir)
-     , snakeTail = zipWith (\p' SnakeTail{..} -> SnakeTail{snakeTailPos = p', ..}) (toList snakePs) snakeTail
-     , snakeNext = NEL.last snakePs
+     { snakeHead = snakeHead
+                   & #snakeHeadPos %~ (+ dirV2 dir)
+                   & #snakeHeadDir .~ dir
+     , snakeTail = zipWith (\dir' SnakeTail{..} -> SnakeTail{snakeTailDir = dir', ..}) (toList snakeDirs) snakeTail
      }
-  
 
 type Snake = SnakeF () ()
 instance Component (SnakeF h t) where type Storage (SnakeF h t) = Unique (SnakeF h t)
 
 exampleSnake :: Snake
 exampleSnake = Snake
-  { snakeHead = SnakeHead () $ V2 3 3
-  , snakeTail = SnakeTail () <$> [V2 3 2, V2 2 2, V2 2 1, V2 2 0]
-  , snakeNext = V2 1 0
+  { snakeHead = SnakeHead () (V2 3 3) DOWN
+  , snakeTail = SnakeTail () <$> [DOWN, DOWN, LEFT]
   }
 
 printSnake2D :: SnakeF h t -> IO ()
-printSnake2D Snake{..} = do
+printSnake2D s@Snake{..} = do
   let ps = mconcat
         [[(snakeHeadPos snakeHead, 'H')]
-        ,(,'T') . snakeTailPos <$> snakeTail
-        ,[(snakeNext ,'N')]
+        ,fmap (,'T') (snakeLocateTail s)
         ]
   let pmap = Map.fromList ps
   let maxX = maximum $ fmap (view _x . fst) ps
