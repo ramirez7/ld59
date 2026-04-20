@@ -9,6 +9,7 @@ import Data.Word (Word64)
 import Pixi.Types qualified as Pixi
 import LD59.Snake
 import LD59.Dir
+import Data.Monoid (Sum (..))
 
 newtype CurrentDir = CurrentDir Dir deriving stock (Show)
 instance Component CurrentDir where type Storage CurrentDir = Unique CurrentDir
@@ -24,4 +25,12 @@ data Tail = Tail
 
 type Snake = SnakeF Head Tail
 
-makeWorld "World" [''Snake, ''CurrentDir]
+newtype Frame = Frame Word64
+  deriving stock (Show)
+  deriving newtype (Enum, Bounded, Num)
+  deriving (Semigroup, Monoid) via (Sum Frame)
+
+instance Component Frame where type Storage Frame = Global Frame
+
+
+makeWorld "World" [''Snake, ''CurrentDir, ''Frame]

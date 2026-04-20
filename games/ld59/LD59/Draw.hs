@@ -10,6 +10,7 @@ import Data.Foldable
 import Apecs
 import Control.Lens
 import Linear.V2
+import Linear.Vector ((^*))
 
 tileSize :: Int
 tileSize = 32
@@ -29,8 +30,14 @@ newArt = do
 test :: System World ()
 test = cmapM_ $ \CurrentDir{} -> pure ()
 
+setSpritePos :: Pixi.Sprite -> V2 Int -> IO ()
+setSpritePos s v2 = do
+  let v2Screen = v2 ^* tileSize
+  setProperty "x" s (intAsVal $ v2Screen ^. _x)
+  setProperty "y" s (intAsVal $ v2Screen ^. _y)   
+
 syncSnakeArt :: System World ()
-syncSnakeArt = cmapM_ $ \(Snake{..} :: Snake) -> liftIO $ do
-  for_ snakeHead $ \Head{..} -> do
-    setProperty "x" headSprite (intAsVal $ snakeHeadPos snakeHead ^. _x)
-    setProperty "y" headSprite (intAsVal $ snakeHeadPos snakeHead ^. _y)   
+syncSnakeArt = cmapM_ $ \(s@Snake{..} :: Snake) -> liftIO $ do
+  for_ snakeHead $ \Head{..} -> setSpritePos headSprite (snakeHeadPos snakeHead)
+  for_ (snakeLocateTail s `zip` toList snakeTail) $ \(tailPos, Tail{..}) -> setSpritePos tailSprite tailPos
+    

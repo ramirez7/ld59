@@ -45,4 +45,4 @@ gateKeypress expectedCode k e = do
       k
   
 setCurrentDir :: Dir -> System World ()
-setCurrentDir dir = cmap $ \(CurrentDir oldDir) -> if dir == oppositeDir oldDir then CurrentDir oldDir else CurrentDir dir
+setCurrentDir dir = cmap $ \(CurrentDir _) -> CurrentDir dir
