@@ -80,20 +80,21 @@ executable ld59
   other-modules:
     LD59.Controls
     LD59.Dir
+    LD59.Draw
     LD59.Jfxr.JSFFI
     LD59.Snake
     LD59.World
 
   build-depends:
+    aeson,
     apecs,
     base,
-    extra,
     containers,
+    extra,
     generic-lens,
     ghc-experimental,
     lens,
     lens-aeson,
-    aeson,
     linear,
     safe,
     test

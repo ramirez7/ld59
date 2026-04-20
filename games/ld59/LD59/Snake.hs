@@ -25,50 +25,52 @@ data SnakeHead h = SnakeHead
   { snakeHeadVal :: h
   , snakeHeadPos :: V2 Int
   , snakeHeadDir :: Dir
-  } deriving stock (Show, Generic)
+  } deriving stock (Show, Generic, Functor, Foldable, Traversable)
 
-data SnakeTail t = SnakeTail
+data SnakeTailSeg t = SnakeTailSeg
   { snakeTailVal :: t
   , snakeTailDir :: Dir
-  } deriving stock (Show, Generic)
+  } deriving stock (Show, Generic, Functor, Foldable, Traversable)
+
+newtype SnakeTail t = SnakeTail { snakeTailSegs :: [SnakeTailSeg t] }
+  deriving stock (Show, Generic, Functor, Foldable, Traversable)
 
 data SnakeF h t = Snake
   { snakeHead :: SnakeHead h
-  , snakeTail :: [SnakeTail t]
+  , snakeTail :: SnakeTail t
   , snakeStomachDir :: Dir
   } deriving stock (Show, Generic)
 
 snakeLocateTail :: SnakeF h t -> [V2 Int]
 snakeLocateTail Snake{..} =
-  drop 1 $ scanl' (\p dir -> p + (negate $ dirV2 dir)) (snakeHeadPos snakeHead) (snakeHeadDir snakeHead : fmap snakeTailDir snakeTail)
+  drop 1 $ scanl' (\p dir -> p + (negate $ dirV2 dir)) (snakeHeadPos snakeHead) (snakeHeadDir snakeHead : fmap snakeTailDir (snakeTailSegs snakeTail))
 
 -- This doesn't stop you from moving into the tail
 snakeMove :: Dir -> SnakeF h t -> SnakeF h t
 snakeMove dir Snake{..} =
-  let tailDirs = fmap snakeTailDir snakeTail
+  let tailDirs = fmap snakeTailDir (snakeTailSegs snakeTail)
       snakeDirs = snakeHeadDir snakeHead :| tailDirs
   in Snake
      { snakeHead = snakeHead
                    & #snakeHeadPos %~ (+ dirV2 dir)
                    & #snakeHeadDir .~ dir
-     , snakeTail = zipWith (\dir' SnakeTail{..} -> SnakeTail{snakeTailDir = dir', ..}) (toList snakeDirs) snakeTail
-     , snakeStomachDir = maybe (snakeHeadDir snakeHead) snakeTailDir (lastMay snakeTail)
+     , snakeTail = SnakeTail $ zipWith (\dir' SnakeTailSeg{..} -> SnakeTailSeg{snakeTailDir = dir', ..}) (toList snakeDirs) (snakeTailSegs snakeTail)
+     , snakeStomachDir = maybe (snakeHeadDir snakeHead) snakeTailDir (lastMay (snakeTailSegs snakeTail))
      }
 
-snakeEat :: t -> SnakeF h t -> SnakeF h t
-snakeEat food Snake{..} =
+snakeEat :: (food -> t) -> food -> SnakeF h t -> SnakeF h t
+snakeEat digest food Snake{..} =
   Snake
-  { snakeTail = snoc snakeTail (SnakeTail food snakeStomachDir)
+  { snakeTail = snakeTail & #snakeTailSegs %~ flip snoc (SnakeTailSeg (digest food) snakeStomachDir)
   , ..
   }
   
-type Snake = SnakeF () ()
 instance Component (SnakeF h t) where type Storage (SnakeF h t) = Unique (SnakeF h t)
 
-exampleSnake :: Snake
+exampleSnake :: SnakeF () ()
 exampleSnake = Snake
   { snakeHead = SnakeHead () (V2 3 3) DOWN
-  , snakeTail = SnakeTail () <$> [DOWN, DOWN, LEFT]
+  , snakeTail = SnakeTail $ SnakeTailSeg () <$> [DOWN, DOWN, LEFT]
   , snakeStomachDir = LEFT
   }
 

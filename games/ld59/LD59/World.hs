@@ -13,6 +13,13 @@ import LD59.Dir
 newtype CurrentDir = CurrentDir Dir deriving stock (Show)
 instance Component CurrentDir where type Storage CurrentDir = Unique CurrentDir
 
-$(mempty)
+data Head = Head
+  { headSprite :: Pixi.Sprite
+  }
+
+data Tail = Tail
+  { tailSprite :: Pixi.Sprite
+  }
+type Snake = SnakeF () ()
 
 makeWorld "World" [''Snake, ''CurrentDir]
