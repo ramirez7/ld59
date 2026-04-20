@@ -33,3 +33,6 @@ zip exe: (bundle exe)
 
 gild:
     fd .cabal --exec cabal-gild --io={}
+
+mv-jfxr:
+    mv ~/Downloads/*.jfxr static/ld59/
