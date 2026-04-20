@@ -17,9 +17,11 @@ data Head = Head
   { headSprite :: Pixi.Sprite
   }
 
+-- Wave type will go in here
 data Tail = Tail
   { tailSprite :: Pixi.Sprite
   }
-type Snake = SnakeF () ()
+
+type Snake = SnakeF Head Tail
 
 makeWorld "World" [''Snake, ''CurrentDir]
