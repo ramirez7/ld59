@@ -78,6 +78,8 @@ executable ld59
 
   -- cabal-gild: discover games/ld59 --exclude=games/ld59/Main.hs
   other-modules:
+    LD59.Controls
+    LD59.Dir
     LD59.Snake
     LD59.World
 
@@ -86,12 +88,13 @@ executable ld59
     base,
     containers,
     extra,
+    generic-lens,
     ghc-experimental,
     lens,
-    generic-lens,
     linear,
     safe,
     test
+
 
 executable test
   -- Import common warning flags.
