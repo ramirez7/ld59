@@ -30,6 +30,7 @@ main = do
   screen_height <- valAsInt <$> getProperty "height" screen
 
   art <- newArt
+  addChild app (artHeadSprite art)
 
   w <- initWorld
   handleInput w

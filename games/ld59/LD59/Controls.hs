@@ -21,16 +21,16 @@ jfxrStr = toJSString """
 
 handleInput :: World -> IO ()
 handleInput w = do
-  ctx <- Jfxr.newAudioContext
-  clip <- Jfxr.newClip jfxrStr
+  --ctx <- Jfxr.newAudioContext
+  --clip <- Jfxr.newClip jfxrStr
   bindKeyDir w "KeyS" DOWN
   bindKeyDir w "KeyW" UP
   bindKeyDir w "KeyA" LEFT
   bindKeyDir w "KeyD" RIGHT
-  addWindowEventListener "keydown" =<< jsFuncFromHs_ (\_ -> do
+{-  addWindowEventListener "keydown" =<< jsFuncFromHs_ (\_ -> do
                                                          consoleLogShow "PLAY"
                                                          consoleLogVal (coerce clip)
-                                                         Jfxr.playClip ctx clip)
+                                                         Jfxr.playClip ctx clip)-}
 bindKeyDir :: World -> String -> Dir -> IO ()
 bindKeyDir w keycode dir =
   addWindowEventListener "keydown" =<< jsFuncFromHs_ (runWith w . gateKeypress keycode (setCurrentDir dir))
@@ -45,4 +45,4 @@ gateKeypress expectedCode k e = do
       k
   
 setCurrentDir :: Dir -> System World ()
-setCurrentDir dir = cmap $ \(_ :: CurrentDir) -> CurrentDir dir
+setCurrentDir dir = cmap $ \(CurrentDir oldDir) -> if dir == oppositeDir oldDir then CurrentDir oldDir else CurrentDir dir

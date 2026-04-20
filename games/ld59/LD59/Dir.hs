@@ -6,7 +6,14 @@ module LD59.Dir where
 import Linear.V2
 
 data Dir = UP | DOWN | LEFT | RIGHT
-  deriving stock (Show)
+  deriving stock (Show, Eq)
+
+oppositeDir :: Dir -> Dir
+oppositeDir = \case
+  UP -> DOWN
+  DOWN -> UP
+  LEFT -> RIGHT
+  RIGHT -> LEFT
 
 dirV2 :: Dir -> V2 Int
 dirV2 = \case
