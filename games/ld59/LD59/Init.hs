@@ -12,6 +12,13 @@ import Lib
 import Linear.V2
 import Data.Foldable (for_)
 
+newFood :: Pixi.Application -> Art -> V2 Int -> System World ()
+newFood app art p = do
+  tailSprite <- liftIO $ newSprite (artTailTexture art)
+  liftIO $ addChild app tailSprite
+  liftIO $ setSpritePos tailSprite p
+  newEntity_ $ Food Tail{..} (V2 10 10)
+
 initGame :: Pixi.Application -> Art -> System World ()
 initGame app art = do
   hardcodedTail <- replicateM 5 $ do
@@ -31,6 +38,8 @@ initGame app art = do
         }
   newEntity_ (CurrentDir RIGHT, initSnake)
   newEntity_ Dead
+  newFood app art (V2 10 10)
+
 
 cleanupSnakeTail :: System World ()
 cleanupSnakeTail = cmapM_ $ \(Snake{..}::Snake) -> for_ snakeTail $ \Tail{..} -> liftIO $ destroySprite tailSprite

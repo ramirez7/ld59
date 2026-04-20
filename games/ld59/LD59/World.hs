@@ -10,6 +10,7 @@ import Pixi.Types qualified as Pixi
 import LD59.Snake
 import LD59.Dir
 import Data.Monoid (Sum (..))
+import Linear.V2
 
 data Screen = Title | Playing | Dead deriving stock (Show, Eq)
 
@@ -28,6 +29,12 @@ data Tail = Tail
   }
 
 type Snake = SnakeF Head Tail
+data Food = Food
+  { foodStuff :: Tail
+  , foodPos :: V2 Int
+  }
+
+instance Component Food where type Storage Food = Map Food
 
 newtype Frame = Frame Word64
   deriving stock (Show)
@@ -37,4 +44,4 @@ newtype Frame = Frame Word64
 instance Component Frame where type Storage Frame = Global Frame
 
 
-makeWorld "World" [''Snake, ''CurrentDir, ''Frame, ''Screen]
+makeWorld "World" [''Snake, ''CurrentDir, ''Frame, ''Screen, ''Food]
