@@ -12,6 +12,7 @@ import LD59.World
 import Data.Function (on)
 import Safe (maximumMay, minimumByMay)
 import Data.Foldable (for_)
+import LD59.Controls
 
 -- Export the actual initialization function
 foreign export javascript "wasmMain" main :: IO ()
@@ -28,4 +29,6 @@ main = do
   screen <- getProperty "screen" app
   screen_width <- valAsInt <$> getProperty "width" screen
   screen_height <- valAsInt <$> getProperty "height" screen
+  w <- initWorld
+  handleInput w
   pure ()

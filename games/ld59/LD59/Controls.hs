@@ -27,7 +27,9 @@ gateKeypress expectedCode k e = do
   krepeat <- valAsBool <$> liftIO (getProperty "repeat" e)
   unless krepeat $ do
     kcode <- fromJSString . valAsString <$> liftIO (getProperty "code" e)
-    when (kcode == expectedCode) k
+    when (kcode == expectedCode) $ do
+      liftIO $ consoleLogShow $ "YOOO " ++ expectedCode
+      k
   
 setCurrentDir :: Dir -> System World ()
 setCurrentDir dir = cmap $ \(_ :: CurrentDir) -> CurrentDir dir
