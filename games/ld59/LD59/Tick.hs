@@ -8,6 +8,7 @@ import Data.Word
 import Control.Monad (when)
 import Control.Lens
 import Linear.V2
+import Lib
 
 tickFrame :: System World ()
 tickFrame = modify global (succ @Frame)
@@ -48,3 +49,9 @@ tickSnake = everyFrame snakeRate $ do
     let oob = hx < 0 || hy < 0 || hx > worldBounds ^. _x || hy > worldBounds ^. _y
     let onTail = snakeHeadPos snakeHead `elem` snakeLocateTail s
     when (oob || onTail) $ cmap $ \(_::Screen) -> Dead
+
+randomFromList :: [a] -> IO a
+randomFromList [] = error "randomFromList ERROR: empty list"
+randomFromList xs = do
+  n <- jsRandom
+  pure $ xs !! floor (fromIntegral (length xs) * n)
