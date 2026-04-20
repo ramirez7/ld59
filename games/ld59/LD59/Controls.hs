@@ -13,6 +13,7 @@ import Lib
 import Control.Monad.IO.Class
 import LD59.Jfxr.JSFFI qualified as Jfxr
 import Data.Coerce
+import LD59.Screen
 
 jfxrStr :: JSString
 jfxrStr = toJSString """
@@ -23,17 +24,22 @@ handleInput :: World -> IO ()
 handleInput w = do
   --ctx <- Jfxr.newAudioContext
   --clip <- Jfxr.newClip jfxrStr
-  bindKeyDir w "KeyS" DOWN
-  bindKeyDir w "KeyW" UP
-  bindKeyDir w "KeyA" LEFT
-  bindKeyDir w "KeyD" RIGHT
+  bindKeyDir w Playing "KeyS" DOWN
+  bindKeyDir w Playing "KeyW" UP
+  bindKeyDir w Playing "KeyA" LEFT
+  bindKeyDir w Playing "KeyD" RIGHT
+  bindKey w Dead "Enter" $ do
+    cmap $ \(_::Screen) -> Playing
 {-  addWindowEventListener "keydown" =<< jsFuncFromHs_ (\_ -> do
                                                          consoleLogShow "PLAY"
                                                          consoleLogVal (coerce clip)
                                                          Jfxr.playClip ctx clip)-}
-bindKeyDir :: World -> String -> Dir -> IO ()
-bindKeyDir w keycode dir =
-  addWindowEventListener "keydown" =<< jsFuncFromHs_ (runWith w . gateKeypress keycode (setCurrentDir dir))
+bindKey :: World -> Screen -> String -> System World () ->IO ()
+bindKey w screen keycode sys =
+  addWindowEventListener "keydown" =<< jsFuncFromHs_ (runWith w . gateKeypress keycode (gateScreen screen sys))
+
+bindKeyDir :: World -> Screen -> String -> Dir -> IO ()
+bindKeyDir w screen keycode dir = bindKey w screen keycode (setCurrentDir dir)
 
 gateKeypress :: MonadIO m => String -> m () -> JSVal -> m ()
 gateKeypress expectedCode k e = do
@@ -41,7 +47,6 @@ gateKeypress expectedCode k e = do
   unless krepeat $ do
     kcode <- fromJSString . valAsString <$> liftIO (getProperty "code" e)
     when (kcode == expectedCode) $ do
-      liftIO $ consoleLogShow $ "YOOO " ++ expectedCode
       k
   
 setCurrentDir :: Dir -> System World ()

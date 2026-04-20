@@ -18,6 +18,7 @@ import LD59.Tick
 import LD59.Snake
 import Linear.V2
 import LD59.Dir
+import LD59.Screen
 
 -- Export the actual initialization function
 foreign export javascript "wasmMain" main :: IO ()
@@ -58,11 +59,13 @@ main = do
           , snakeStomachDir = RIGHT
           }
     newEntity_ (CurrentDir RIGHT, initSnake)
+    newEntity_ Dead
 
   callAddTicker gameTicker =<< jsFuncFromHs_
     (\_ -> runWith w $ do
-        tickFrame
-        tickSnake
+        gateScreen Playing $ do
+          tickFrame
+          tickSnake
         syncSnakeArt
         )
                                                  

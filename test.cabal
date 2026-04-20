@@ -82,6 +82,7 @@ executable ld59
     LD59.Dir
     LD59.Draw
     LD59.Jfxr.JSFFI
+    LD59.Screen
     LD59.Snake
     LD59.Tick
     LD59.World

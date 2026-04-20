@@ -11,6 +11,10 @@ import LD59.Snake
 import LD59.Dir
 import Data.Monoid (Sum (..))
 
+data Screen = Title | Playing | Dead deriving stock (Show, Eq)
+
+instance Component Screen where type Storage Screen = Unique Screen
+
 newtype CurrentDir = CurrentDir Dir deriving stock (Show)
 instance Component CurrentDir where type Storage CurrentDir = Unique CurrentDir
 
@@ -33,4 +37,4 @@ newtype Frame = Frame Word64
 instance Component Frame where type Storage Frame = Global Frame
 
 
-makeWorld "World" [''Snake, ''CurrentDir, ''Frame]
+makeWorld "World" [''Snake, ''CurrentDir, ''Frame, ''Screen]
