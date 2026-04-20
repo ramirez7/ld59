@@ -4,7 +4,7 @@
 module Main where
 
 import Lib
-import Control.Monad (when, replicateM)
+import Control.Monad (when)
 import GHC.Wasm.Prim
 import Pixi.Types qualified as Pixi
 import Apecs
@@ -14,6 +14,7 @@ import Safe (maximumMay, minimumByMay)
 import Data.Foldable (for_)
 import LD59.Controls
 import LD59.Draw
+import LD59.Init
 import LD59.Tick
 import LD59.Snake
 import Linear.V2
@@ -42,24 +43,7 @@ main = do
   addChild app (artHeadSprite art)
 
   w <- initWorld
-  runWith w $ do
-    hardcodedTail <- replicateM 5 $ do
-      tailSprite <- liftIO $ newSprite (artTailTexture art)
-      liftIO $ addChild app tailSprite
-      let snakeTailVal = Tail{..}
-      let snakeTailDir = RIGHT
-      pure SnakeTailSeg{..}
-    let initSnake = Snake
-          { snakeHead = SnakeHead
-            { snakeHeadVal = Head { headSprite = artHeadSprite art }
-            , snakeHeadPos = V2 5 5
-            , snakeHeadDir = RIGHT
-            }
-          , snakeTail = SnakeTail hardcodedTail
-          , snakeStomachDir = RIGHT
-          }
-    newEntity_ (CurrentDir RIGHT, initSnake)
-    newEntity_ Dead
+  runWith w (initGame app art)
 
   callAddTicker gameTicker =<< jsFuncFromHs_
     (\_ -> runWith w $ do
@@ -69,6 +53,6 @@ main = do
         syncSnakeArt
         )
                                                  
-  handleInput w
+  handleInput app art w
   startTicker gameTicker
   pure ()
