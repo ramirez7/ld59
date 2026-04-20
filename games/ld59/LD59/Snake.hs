@@ -12,6 +12,7 @@ import Linear.V2
 import Data.Foldable (toList, for_, traverse_)
 import Data.List (scanl')
 import Control.Lens
+import Safe (lastMay)
 import Apecs
 import GHC.Generics
 import Data.Generics.Labels ()
@@ -47,9 +48,10 @@ data SnakeF h t = Snake
 snakeLocateTail :: SnakeF h t -> [V2 Int]
 snakeLocateTail Snake{..} =
   drop 1 $ scanl' (\p dir -> p + (negate $ dirV2 dir)) (snakeHeadPos snakeHead) (snakeHeadDir snakeHead : fmap snakeTailDir snakeTail)
+
 -- This doesn't stop you from moving into the tail
-moveSnake :: Dir -> SnakeF h t -> SnakeF h t
-moveSnake dir Snake{..} =
+snakeMove :: Dir -> SnakeF h t -> SnakeF h t
+snakeMove dir Snake{..} =
   let tailDirs = fmap snakeTailDir snakeTail
       snakeDirs = snakeHeadDir snakeHead :| tailDirs
   in Snake
@@ -59,6 +61,15 @@ moveSnake dir Snake{..} =
      , snakeTail = zipWith (\dir' SnakeTail{..} -> SnakeTail{snakeTailDir = dir', ..}) (toList snakeDirs) snakeTail
      }
 
+snakeEat :: t -> SnakeF h t -> SnakeF h t
+snakeEat food Snake{..} =
+  let lastDir = maybe (snakeHeadDir snakeHead) snakeTailDir (lastMay snakeTail)
+      newTail = SnakeTail food lastDir
+  in Snake
+  { snakeTail = snoc snakeTail newTail
+  , ..
+  }
+  
 type Snake = SnakeF () ()
 instance Component (SnakeF h t) where type Storage (SnakeF h t) = Unique (SnakeF h t)
 
