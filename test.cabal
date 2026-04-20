@@ -87,11 +87,13 @@ executable ld59
   build-depends:
     apecs,
     base,
-    containers,
     extra,
+    containers,
     generic-lens,
     ghc-experimental,
     lens,
+    lens-aeson,
+    aeson,
     linear,
     safe,
     test
