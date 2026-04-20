@@ -80,6 +80,7 @@ executable ld59
   other-modules:
     LD59.Controls
     LD59.Dir
+    LD59.Jfxr.JSFFI
     LD59.Snake
     LD59.World
 
@@ -94,7 +95,6 @@ executable ld59
     linear,
     safe,
     test
-
 
 executable test
   -- Import common warning flags.
