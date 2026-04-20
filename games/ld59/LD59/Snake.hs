@@ -4,6 +4,7 @@
 {-# LANGUAGE NegativeLiterals #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE StrictData #-}
 
 module LD59.Snake where
 
@@ -43,6 +44,7 @@ data SnakeTail t = SnakeTail
 data SnakeF h t = Snake
   { snakeHead :: SnakeHead h
   , snakeTail :: [SnakeTail t]
+  , snakeStomachDir :: Dir
   } deriving stock (Show, Generic)
 
 snakeLocateTail :: SnakeF h t -> [V2 Int]
@@ -59,14 +61,13 @@ snakeMove dir Snake{..} =
                    & #snakeHeadPos %~ (+ dirV2 dir)
                    & #snakeHeadDir .~ dir
      , snakeTail = zipWith (\dir' SnakeTail{..} -> SnakeTail{snakeTailDir = dir', ..}) (toList snakeDirs) snakeTail
+     , snakeStomachDir = maybe (snakeHeadDir snakeHead) snakeTailDir (lastMay snakeTail)
      }
 
 snakeEat :: t -> SnakeF h t -> SnakeF h t
 snakeEat food Snake{..} =
-  let lastDir = maybe (snakeHeadDir snakeHead) snakeTailDir (lastMay snakeTail)
-      newTail = SnakeTail food lastDir
-  in Snake
-  { snakeTail = snoc snakeTail newTail
+  Snake
+  { snakeTail = snoc snakeTail (SnakeTail food snakeStomachDir)
   , ..
   }
   
@@ -77,6 +78,7 @@ exampleSnake :: Snake
 exampleSnake = Snake
   { snakeHead = SnakeHead () (V2 3 3) DOWN
   , snakeTail = SnakeTail () <$> [DOWN, DOWN, LEFT]
+  , snakeStomachDir = LEFT
   }
 
 printSnake2D :: SnakeF h t -> IO ()
@@ -99,3 +101,26 @@ printSnake2D s@Snake{..} = do
     for_ row $ \c ->
       putStr $ maybe "_ " (:" ") c
     putStrLn ""
+
+{-
+ghci> printSnake2D (exampleSnake)                 
+  0 1 2 3 4 
+0 _ _ _ T T 
+1 _ _ _ T _ 
+2 _ _ _ T _ 
+3 _ _ _ H _ 
+ghci> printSnake2D (snakeMove DOWN $ exampleSnake)
+  0 1 2 3 
+0 _ _ _ T 
+1 _ _ _ T 
+2 _ _ _ T 
+3 _ _ _ T 
+4 _ _ _ H 
+ghci> printSnake2D (snakeEat () $ snakeMove DOWN $ exampleSnake)
+  0 1 2 3 4 
+0 _ _ _ T T 
+1 _ _ _ T _ 
+2 _ _ _ T _ 
+3 _ _ _ T _ 
+4 _ _ _ H _
+-}
