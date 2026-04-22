@@ -33,6 +33,7 @@ handleInput app art w = do
   bindKeyDir w Playing "KeyD" RIGHT
   bindKey w Dead "Enter" $ do
     cleanupSnakeTail
+    cleanupFood
     initGame app art
     cmap $ \(_::Screen) -> Playing
 {-  addWindowEventListener "keydown" =<< jsFuncFromHs_ (\_ -> do

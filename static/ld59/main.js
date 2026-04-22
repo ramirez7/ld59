@@ -12,6 +12,16 @@ async function newClip(s) {
     });
 }
 
+async function fetchText(s) {
+    try {
+        const response = await fetch(s);
+        const text = await response.text();
+        return text;
+    } catch (error) {
+        console.error('fetchText Error:', error);
+    }
+}
+
 window.newClip = newClip;
 
 import wasm_init from "./wasm-init.js"

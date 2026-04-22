@@ -1,4 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE StrictData #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -11,6 +12,7 @@ import LD59.Snake
 import LD59.Dir
 import Data.Monoid (Sum (..))
 import Linear.V2
+import LD59.Wave
 
 data Screen = Title | Playing | Dead deriving stock (Show, Eq)
 
@@ -23,9 +25,9 @@ data Head = Head
   { headSprite :: Pixi.Sprite
   }
 
--- Wave type will go in here
 data Tail = Tail
   { tailSprite :: Pixi.Sprite
+  , tailWave :: Wave
   }
 
 type Snake = SnakeF Head Tail

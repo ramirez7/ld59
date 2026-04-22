@@ -86,6 +86,7 @@ executable ld59
     LD59.Screen
     LD59.Snake
     LD59.Tick
+    LD59.Wave
     LD59.World
 
   build-depends:

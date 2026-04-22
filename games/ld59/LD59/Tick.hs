@@ -58,7 +58,8 @@ tickFoodSpawn app art = everyFrame spawnRate $ do
   foodCoords <- cfoldMap $ \Food{..} -> Set.singleton foodPos
   let occupiedCoords = mconcat [snakeCoords, foodCoords]
   let openCoords = filter (flip Set.notMember occupiedCoords) worldCoords
-  randomFromList openCoords >>= newFood app art
+  wave <- randomFromList [minBound..]
+  randomFromList openCoords >>= newFood app art wave
 
 tickSnake :: System World ()
 tickSnake = everyFrame snakeRate $ do

@@ -7,22 +7,25 @@ import LD59.Dir
 import LD59.Draw
 import Pixi.Types qualified as Pixi
 import Apecs
-import Control.Monad (replicateM)
 import Lib
 import Linear.V2
 import Data.Foldable (for_)
+import LD59.Wave
+import Data.Traversable (for)
 
-newFood :: Pixi.Application -> Art -> V2 Int -> System World ()
-newFood app art p = do
+newFood :: Pixi.Application -> Art -> Wave -> V2 Int -> System World ()
+newFood app art tailWave p = do
   tailSprite <- liftIO $ newSprite (artTailTexture art)
+  liftIO $ waveSpriteTint tailWave tailSprite
   liftIO $ addChild app tailSprite
   liftIO $ setSpritePos tailSprite p
   newEntity_ $ Food Tail{..} p
 
 initGame :: Pixi.Application -> Art -> System World ()
 initGame app art = do
-  hardcodedTail <- replicateM 5 $ do
+  hardcodedTail <- for [minBound..] $ \tailWave -> do
     tailSprite <- liftIO $ newSprite (artTailTexture art)
+    liftIO $ waveSpriteTint tailWave tailSprite
     liftIO $ addChild app tailSprite
     let snakeTailVal = Tail{..}
     let snakeTailDir = RIGHT
@@ -38,9 +41,14 @@ initGame app art = do
         }
   newEntity_ (CurrentDir RIGHT, initSnake)
   newEntity_ Dead
-  newFood app art (V2 10 10)
+  newFood app art TRI (V2 10 10)
 
 
 cleanupSnakeTail :: System World ()
 cleanupSnakeTail = cmapM_ $ \(Snake{..}::Snake) -> for_ snakeTail $ \Tail{..} -> liftIO $ destroySprite tailSprite
+
+cleanupFood :: System World ()
+cleanupFood = cmapM $ \Food{..} -> do
+  liftIO $ destroySprite (tailSprite foodStuff)
+  pure (Nothing :: Maybe Food)
   
