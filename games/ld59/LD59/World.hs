@@ -1,0 +1,49 @@
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE StrictData #-}
+{-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE DerivingVia #-}
+{-# LANGUAGE TypeFamilies #-}
+module LD59.World where
+
+import Apecs
+import Data.Word (Word64)
+import Pixi.Types qualified as Pixi
+import LD59.Snake
+import LD59.Dir
+import Data.Monoid (Sum (..))
+import Linear.V2
+import LD59.Wave
+
+data Screen = Title | Playing | Dead deriving stock (Show, Eq)
+
+instance Component Screen where type Storage Screen = Unique Screen
+
+newtype CurrentDir = CurrentDir Dir deriving stock (Show)
+instance Component CurrentDir where type Storage CurrentDir = Unique CurrentDir
+
+data Head = Head
+  { headSprite :: Pixi.Sprite
+  }
+
+data Tail = Tail
+  { tailSprite :: Pixi.Sprite
+  , tailWave :: Wave
+  }
+
+type Snake = SnakeF Head Tail
+data Food = Food
+  { foodStuff :: Tail
+  , foodPos :: V2 Int
+  }
+
+instance Component Food where type Storage Food = Map Food
+
+newtype Frame = Frame Word64
+  deriving stock (Show)
+  deriving newtype (Enum, Bounded, Num)
+  deriving (Semigroup, Monoid) via (Sum Frame)
+
+instance Component Frame where type Storage Frame = Global Frame
+
+
+makeWorld "World" [''Snake, ''CurrentDir, ''Frame, ''Screen, ''Food]

@@ -1,0 +1,43 @@
+{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE OverloadedStrings #-}
+module LD59.Draw where
+
+import Lib
+import Pixi.Types qualified as Pixi
+import LD59.World
+import LD59.Snake
+import Data.Foldable
+import Apecs
+import Control.Lens
+import Linear.V2
+import Linear.Vector ((^*))
+
+tileSize :: Int
+tileSize = 32
+
+data Art = Art
+  { artHeadSprite :: Pixi.Sprite
+  , artTailTexture :: Pixi.Texture
+  }
+
+newArt ::  IO Art
+newArt = do
+  artHeadSprite <- loadTexture "./h.png" >>= newSprite
+  artTailTexture <- loadTexture "./t.png"
+  pure Art{..}
+
+
+test :: System World ()
+test = cmapM_ $ \CurrentDir{} -> pure ()
+
+setSpritePos :: Pixi.Sprite -> V2 Int -> IO ()
+setSpritePos s v2 = do
+  let v2Screen = v2 ^* tileSize
+  setProperty "x" s (intAsVal $ v2Screen ^. _x)
+  setProperty "y" s (intAsVal $ v2Screen ^. _y)   
+
+syncSnakeArt :: System World ()
+syncSnakeArt = cmapM_ $ \(s@Snake{..} :: Snake) -> liftIO $ do
+  for_ snakeHead $ \Head{..} -> setSpritePos headSprite (snakeHeadPos snakeHead)
+  for_ (snakeLocateTail s `zip` toList snakeTail) $ \(tailPos, Tail{..}) -> setSpritePos tailSprite tailPos
+    

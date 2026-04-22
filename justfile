@@ -1,5 +1,8 @@
+cabal-update:
+    wasm32-wasi-cabal update
+
 repl exe:
-    wasm32-wasi-cabal repl --enable-multi-repl pixi-js jsffi-typed lib:test exe:{{exe}}
+     wasm32-wasi-cabal repl exe:{{exe}}
 
 lib-repl:
     wasm32-wasi-cabal repl --enable-multi-repl pixi-js jsffi-typed
@@ -30,3 +33,6 @@ zip exe: (bundle exe)
 
 gild:
     fd .cabal --exec cabal-gild --io={}
+
+mv-jfxr:
+    mv ~/Downloads/*.jfxr static/ld59/

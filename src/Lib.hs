@@ -23,6 +23,9 @@ type JSFunction = JSVal
 
 type IsJSVal a = Coercible a JSVal
 
+foreign import javascript unsafe "Math.random()"
+  jsRandom :: IO Float
+
 -- *****************************************************************************
 -- * PIXI.js Application Functions
 -- *****************************************************************************
@@ -369,3 +372,6 @@ foreign import javascript unsafe "$2.on($1, $3)"
 
 addEventListener :: IsJSVal a => JSString -> a -> JSFunction -> IO ()
 addEventListener e o l = addEventListener' e (coerce o) l
+
+foreign import javascript unsafe "window.addEventListener($1, $2)"
+  addWindowEventListener :: JSString -> JSFunction -> IO ()
