@@ -7,6 +7,12 @@ repl exe:
 lib-repl:
     wasm32-wasi-cabal repl --enable-multi-repl pixi-js jsffi-typed
 
+all-repl:
+    wasm32-wasi-cabal repl --enable-multi-repl all
+
+ghciwatch:
+    ghciwatch --command "wasm32-wasi-cabal repl --enable-multi-repl all" $(fd .hs --exec echo -n "--watch {//} ")
+
 build exe:
     wasm32-wasi-cabal build exe:{{exe}}
 

@@ -40,6 +40,7 @@
                 pkgs.fd
                 ghc-wasm-meta.packages.${system}.default
                 pkgs.pkgsStatic.haskellPackages.cabal-gild
+                pkgs.ghciwatch
               ];
             shellHook = ''
               ${pkgs.hello}/bin/hello
