@@ -18,12 +18,32 @@ tileSize = 32
 data Art = Art
   { artHeadSprite :: Pixi.Sprite
   , artTailTexture :: Pixi.Texture
+  , artBG :: Pixi.Texture
+  , artBorderTop :: Pixi.Texture
+  , artBorderSide :: Pixi.Texture
+  , artHeadSide :: Pixi.Texture
+  , artHeadUp :: Pixi.Texture
+  , artSaw :: Pixi.Texture
+  , artSine :: Pixi.Texture
+  , artSquare :: Pixi.Texture
+  , artTangent :: Pixi.Texture
+  , artTriangle :: Pixi.Texture
   }
 
 newArt ::  IO Art
 newArt = do
   artHeadSprite <- loadTexture "./h.png" >>= newSprite
   artTailTexture <- loadTexture "./t.png"
+  artBG <- loadTexture "./BG.png"
+  artBorderTop <- loadTexture "./Border Top.png"
+  artBorderSide <- loadTexture "./Border side.png"
+  artHeadSide <- loadTexture "./Head side.png"
+  artHeadUp <- loadTexture "./Head up.png"
+  artSaw <- loadTexture "./Saw.png"
+  artSine <- loadTexture "./Sine.png"
+  artSquare <- loadTexture "./Square.png"
+  artTangent <- loadTexture "./Tangent.png"
+  artTriangle <- loadTexture "./Triangle.png"
   pure Art{..}
 
 
