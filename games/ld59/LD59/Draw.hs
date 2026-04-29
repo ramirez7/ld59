@@ -1,4 +1,6 @@
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE StrictData #-}
 {-# LANGUAGE OverloadedStrings #-}
 module LD59.Draw where
 
@@ -11,12 +13,13 @@ import Apecs
 import Control.Lens
 import Linear.V2
 import Linear.Vector ((^*))
+import LD59.Wave
 
 tileSize :: Int
 tileSize = 32
 
 data Art = Art
-  { artHeadSprite :: Pixi.Sprite
+  { artHeadTexture :: Pixi.Texture
   , artTailTexture :: Pixi.Texture
   , artBG :: Pixi.Texture
   , artBorderTop :: Pixi.Texture
@@ -30,9 +33,17 @@ data Art = Art
   , artTriangle :: Pixi.Texture
   }
 
+waveSpriteArt :: Art -> Wave -> Pixi.Texture
+waveSpriteArt Art{..} = \case
+  TRI -> artTriangle
+  SIN -> artSine
+  SQUARE -> artSquare
+  SAW -> artSaw
+  TAN -> artTangent
+
 newArt ::  IO Art
 newArt = do
-  artHeadSprite <- loadTexture "./h.png" >>= newSprite
+  artHeadTexture <- loadTexture "./h.png"
   artTailTexture <- loadTexture "./t.png"
   artBG <- loadTexture "./BG.png"
   artBorderTop <- loadTexture "./Border Top.png"

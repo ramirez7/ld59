@@ -40,7 +40,6 @@ main = do
   setProperty "minFPS" gameTicker (intAsVal 60)
 
   art <- newArt
-  addChild app (artHeadSprite art)
 
   w <- initWorld
   runWith w (initGame app art)

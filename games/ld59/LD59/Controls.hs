@@ -32,7 +32,7 @@ handleInput app art w = do
   bindKeyDir w Playing "KeyA" LEFT
   bindKeyDir w Playing "KeyD" RIGHT
   bindKey w Dead "Enter" $ do
-    cleanupSnakeTail
+    cleanupSnake
     cleanupFood
     initGame app art
     cmap $ \(_::Screen) -> Playing

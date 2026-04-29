@@ -15,7 +15,7 @@ import Data.Traversable (for)
 
 newFood :: Pixi.Application -> Art -> Wave -> V2 Int -> System World ()
 newFood app art tailWave p = do
-  tailSprite <- liftIO $ newSprite (artTailTexture art)
+  tailSprite <- liftIO $ newSprite (waveSpriteArt art tailWave)
   liftIO $ waveSpriteTint tailWave tailSprite
   liftIO $ addChild app tailSprite
   liftIO $ setSpritePos tailSprite p
@@ -23,8 +23,10 @@ newFood app art tailWave p = do
 
 initGame :: Pixi.Application -> Art -> System World ()
 initGame app art = do
+  headSprite <- liftIO $ newSprite (artHeadTexture art)
+  liftIO $ addChild app headSprite
   hardcodedTail <- for [minBound..] $ \tailWave -> do
-    tailSprite <- liftIO $ newSprite (artTailTexture art)
+    tailSprite <- liftIO $ newSprite (waveSpriteArt art tailWave)
     liftIO $ waveSpriteTint tailWave tailSprite
     liftIO $ addChild app tailSprite
     let snakeTailVal = Tail{..}
@@ -32,7 +34,7 @@ initGame app art = do
     pure SnakeTailSeg{..}
   let initSnake = Snake
         { snakeHead = SnakeHead
-          { snakeHeadVal = Head { headSprite = artHeadSprite art }
+          { snakeHeadVal = Head { .. }
           , snakeHeadPos = V2 5 5
           , snakeHeadDir = RIGHT
           }
@@ -44,8 +46,10 @@ initGame app art = do
   newFood app art TRI (V2 10 10)
 
 
-cleanupSnakeTail :: System World ()
-cleanupSnakeTail = cmapM_ $ \(Snake{..}::Snake) -> for_ snakeTail $ \Tail{..} -> liftIO $ destroySprite tailSprite
+cleanupSnake :: System World ()
+cleanupSnake = cmapM_ $ \(Snake{..}::Snake) -> liftIO $ do
+  for_ snakeHead  $ \Head{..} -> destroySprite headSprite
+  for_ snakeTail $ \Tail{..} -> destroySprite tailSprite
 
 cleanupFood :: System World ()
 cleanupFood = cmapM $ \Food{..} -> do
