@@ -31,7 +31,10 @@ source-repository head
   location: https://github.com/Tritlo/wasm-game.git
 
 common warnings
-  ghc-options: -Wall -Werror=incomplete-patterns
+  ghc-options:
+    -Wall
+    -Werror=incomplete-patterns
+
   cc-options: -Wnomain-return-type
 
 common wasm-export
@@ -39,7 +42,7 @@ common wasm-export
     -no-hs-main
     -optl-mexec-model=reactor
     "-optl-Wl,--export=wasmMain"
-    
+
 library
   hs-source-dirs: src
   build-depends:
@@ -75,7 +78,6 @@ executable ld59-prep
 common ld59-shared
   import: warnings
   default-language: GHC2021
-
   build-depends:
     aeson,
     apecs,
@@ -93,7 +95,6 @@ common ld59-shared
 library ld59-lib
   import: ld59-shared
   hs-source-dirs: games/ld59
-
   -- cabal-gild: discover games/ld59 --exclude=games/ld59/Main.hs
   exposed-modules:
     LD59.Controls
@@ -139,3 +140,13 @@ executable test
     -no-hs-main
     -optl-mexec-model=reactor
     "-optl-Wl,--export=wasmMain"
+
+library json-type-gen
+  hs-source-dirs: scripts/json-type-gen
+  -- cabal-gild: discover scripts/json-type-gen
+  exposed-modules: JsonTypeGen
+  default-language: GHC2021
+  build-depends:
+    aeson,
+    base,
+    containers
