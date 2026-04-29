@@ -1,5 +1,5 @@
 {-# LANGUAGE GHC2024 #-}
-
+-- no need for this to be jfxr-specific if i use aeson..just do a little inference
 import System.Environment
 import System.Process
 main :: IO ()
