@@ -42,3 +42,7 @@ gild:
 
 mv-jfxr:
     mv ~/Downloads/*.jfxr static/ld59/
+
+gen-jfxr-types:
+    echo -e 'jsonTypeGenIO "static/ld59/Default 1.jfxr" "games/ld59/LD59/Jfxr/Types.hs" "LD59.Jfxr.Types" "JfxrDef" "jfxr"\n:q' | \
+    wasm32-wasi-cabal repl json-type-gen

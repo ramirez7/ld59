@@ -90,6 +90,7 @@ common ld59-shared
     lens-aeson,
     linear,
     safe,
+    scientific,
     test
 
 library ld59-lib
@@ -102,6 +103,7 @@ library ld59-lib
     LD59.Draw
     LD59.Init
     LD59.Jfxr.JSFFI
+    LD59.Jfxr.Types
     LD59.Screen
     LD59.Snake
     LD59.Tick
