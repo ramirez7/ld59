@@ -3,12 +3,16 @@ module LD59.Jfxr.JSFFI where
 
 import GHC.Wasm.Prim
 
+foreign import javascript safe "fetchText($1)"
+  fetchText :: JSString -> IO JSString
+
 newtype Clip = Clip JSVal
 
 foreign import javascript safe "newClip($1)"
   newClip :: JSString -> IO Clip
 
 newtype AudioContext = AudioContext JSVal
+
 foreign import javascript unsafe "new AudioContext()"
   newAudioContext :: IO AudioContext
 

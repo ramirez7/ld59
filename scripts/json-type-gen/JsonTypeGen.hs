@@ -49,14 +49,19 @@ jsonTypeGen moduleName typeName prefix json = unlines $ mconcat
     , "import Data.Aeson as Ae"
     , "import GHC.Generics"
     , "import Data.Scientific"
+    , "import Data.Char (toLower)"
     , "data " <> typeName <> " = " <> typeName
     ]
   , zipWith (<>) ("  { " : repeat "  , ") fields
   , [ "  }"
     , "  deriving (Eq, Ord, Show, Read, Generic)"
     , ""
+    , "uncapitalize :: String -> String"
+    , "uncapitalize [] = []"
+    , "uncapitalize (x:xs) = toLower x : xs"
+    , ""
     , optionsVar <> " :: Ae.Options"
-    , optionsVar <> " = Ae.defaultOptions { fieldLabelModifier = drop " <> show (length prefix) <> " }"
+    , optionsVar <> " = Ae.defaultOptions { fieldLabelModifier = uncapitalize . drop " <> show (length prefix) <> " }"
     , ""
     , "instance Ae.ToJSON " <> typeName <> " where"
     , "  toJSON = genericToJSON " <> optionsVar
@@ -73,4 +78,8 @@ jsonTypeGen moduleName typeName prefix json = unlines $ mconcat
 
 capitalize :: String -> String
 capitalize [] = []
-capitalize (x:xs) = toUpper x : map toLower xs
+capitalize (x:xs) = toUpper x : xs
+
+uncapitalize :: String -> String
+uncapitalize [] = []
+uncapitalize (x:xs) = toLower x : xs

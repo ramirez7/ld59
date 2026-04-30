@@ -2,48 +2,53 @@ module LD59.Jfxr.Types where
 import Data.Aeson as Ae
 import GHC.Generics
 import Data.Scientific
+import Data.Char (toLower)
 data JfxrDef = JfxrDef
   { jfxr_name :: String
   , jfxr_version :: Scientific
   , jfxrAmplification :: Scientific
   , jfxrAttack :: Scientific
-  , jfxrBitcrush :: Scientific
-  , jfxrBitcrushsweep :: Scientific
+  , jfxrBitCrush :: Scientific
+  , jfxrBitCrushSweep :: Scientific
   , jfxrCompression :: Scientific
   , jfxrDecay :: Scientific
-  , jfxrFlangeroffset :: Scientific
-  , jfxrFlangeroffsetsweep :: Scientific
+  , jfxrFlangerOffset :: Scientific
+  , jfxrFlangerOffsetSweep :: Scientific
   , jfxrFrequency :: Scientific
-  , jfxrFrequencydeltasweep :: Scientific
-  , jfxrFrequencyjump1amount :: Scientific
-  , jfxrFrequencyjump1onset :: Scientific
-  , jfxrFrequencyjump2amount :: Scientific
-  , jfxrFrequencyjump2onset :: Scientific
-  , jfxrFrequencysweep :: Scientific
+  , jfxrFrequencyDeltaSweep :: Scientific
+  , jfxrFrequencyJump1Amount :: Scientific
+  , jfxrFrequencyJump1Onset :: Scientific
+  , jfxrFrequencyJump2Amount :: Scientific
+  , jfxrFrequencyJump2Onset :: Scientific
+  , jfxrFrequencySweep :: Scientific
   , jfxrHarmonics :: Scientific
-  , jfxrHarmonicsfalloff :: Scientific
-  , jfxrHighpasscutoff :: Scientific
-  , jfxrHighpasscutoffsweep :: Scientific
-  , jfxrInterpolatenoise :: Bool
-  , jfxrLowpasscutoff :: Scientific
-  , jfxrLowpasscutoffsweep :: Scientific
+  , jfxrHarmonicsFalloff :: Scientific
+  , jfxrHighPassCutoff :: Scientific
+  , jfxrHighPassCutoffSweep :: Scientific
+  , jfxrInterpolateNoise :: Bool
+  , jfxrLowPassCutoff :: Scientific
+  , jfxrLowPassCutoffSweep :: Scientific
   , jfxrNormalization :: Bool
-  , jfxrRepeatfrequency :: Scientific
-  , jfxrSamplerate :: Scientific
-  , jfxrSquareduty :: Scientific
-  , jfxrSquaredutysweep :: Scientific
+  , jfxrRepeatFrequency :: Scientific
+  , jfxrSampleRate :: Scientific
+  , jfxrSquareDuty :: Scientific
+  , jfxrSquareDutySweep :: Scientific
   , jfxrSustain :: Scientific
-  , jfxrSustainpunch :: Scientific
-  , jfxrTremolodepth :: Scientific
-  , jfxrTremolofrequency :: Scientific
-  , jfxrVibratodepth :: Scientific
-  , jfxrVibratofrequency :: Scientific
+  , jfxrSustainPunch :: Scientific
+  , jfxrTremoloDepth :: Scientific
+  , jfxrTremoloFrequency :: Scientific
+  , jfxrVibratoDepth :: Scientific
+  , jfxrVibratoFrequency :: Scientific
   , jfxrWaveform :: String
   }
   deriving (Eq, Ord, Show, Read, Generic)
 
+uncapitalize :: String -> String
+uncapitalize [] = []
+uncapitalize (x:xs) = toLower x : xs
+
 aesonStrip'jfxr :: Ae.Options
-aesonStrip'jfxr = Ae.defaultOptions { fieldLabelModifier = drop 4 }
+aesonStrip'jfxr = Ae.defaultOptions { fieldLabelModifier = uncapitalize . drop 4 }
 
 instance Ae.ToJSON JfxrDef where
   toJSON = genericToJSON aesonStrip'jfxr

@@ -14,6 +14,11 @@ import Control.Lens
 import Linear.V2
 import Linear.Vector ((^*))
 import LD59.Wave
+import LD59.Jfxr.Types
+import LD59.Jfxr.JSFFI
+import GHC.Wasm.Prim
+import Data.Aeson qualified as Ae
+import Data.String (fromString)
 
 tileSize :: Int
 tileSize = 32
@@ -31,6 +36,7 @@ data Art = Art
   , artSquare :: Pixi.Texture
   , artTangent :: Pixi.Texture
   , artTriangle :: Pixi.Texture
+  , artSinJfxr :: JfxrDef
   }
 
 waveSpriteArt :: Art -> Wave -> Pixi.Texture
@@ -55,8 +61,13 @@ newArt = do
   artSquare <- loadTexture "./Square.png"
   artTangent <- loadTexture "./Tangent.png"
   artTriangle <- loadTexture "./Triangle.png"
+  artSinJfxr <- fetchJfxrDef "./ld59-sin.jfxr"
   pure Art{..}
 
+fetchJfxrDef :: JSString -> IO JfxrDef
+fetchJfxrDef path = fetchText path >>= \js -> case Ae.eitherDecode (fromString (fromJSString js)) of
+  Right jd -> pure jd
+  Left e -> error e
 
 test :: System World ()
 test = cmapM_ $ \CurrentDir{} -> pure ()
