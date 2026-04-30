@@ -82,6 +82,7 @@ common ld59-shared
     aeson,
     apecs,
     base,
+    bytestring,
     containers,
     extra,
     generic-lens,

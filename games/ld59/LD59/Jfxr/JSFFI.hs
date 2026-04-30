@@ -2,6 +2,9 @@
 module LD59.Jfxr.JSFFI where
 
 import GHC.Wasm.Prim
+import LD59.Jfxr.Types
+import Data.Aeson qualified as Ae
+import Data.ByteString.Lazy.Char8 qualified as BL
 
 foreign import javascript safe "fetchText($1)"
   fetchText :: JSString -> IO JSString
@@ -9,7 +12,10 @@ foreign import javascript safe "fetchText($1)"
 newtype Clip = Clip JSVal
 
 foreign import javascript safe "newClip($1)"
-  newClip :: JSString -> IO Clip
+  newClip' :: JSString -> IO Clip
+
+newClip :: JfxrDef -> IO Clip
+newClip = newClip' . toJSString . BL.unpack . Ae.encode
 
 newtype AudioContext = AudioContext JSVal
 

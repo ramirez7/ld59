@@ -11,11 +11,13 @@ import Apecs
 import Control.Monad (unless, when)
 import Lib
 import Control.Monad.IO.Class
+import LD59.Jfxr.Types
 import LD59.Jfxr.JSFFI qualified as Jfxr
 import Data.Coerce
 import LD59.Screen
 import Pixi.Types qualified as Pixi
 import LD59.Draw
+import LD59.Wave
 import LD59.Init
 
 jfxrStr :: JSString
@@ -23,8 +25,8 @@ jfxrStr = toJSString """
 {"_version":1,"_name":"Default 1","_locked":[],"sampleRate":44100,"attack":0,"sustain":0.2,"sustainPunch":0,"decay":0,"tremoloDepth":0,"tremoloFrequency":10,"frequency":500,"frequencySweep":0,"frequencyDeltaSweep":0,"repeatFrequency":0,"frequencyJump1Onset":33,"frequencyJump1Amount":0,"frequencyJump2Onset":66,"frequencyJump2Amount":0,"harmonics":0,"harmonicsFalloff":0.5,"waveform":"sine","interpolateNoise":true,"vibratoDepth":0,"vibratoFrequency":10,"squareDuty":50,"squareDutySweep":0,"flangerOffset":0,"flangerOffsetSweep":0,"bitCrush":16,"bitCrushSweep":0,"lowPassCutoff":22050,"lowPassCutoffSweep":0,"highPassCutoff":0,"highPassCutoffSweep":0,"compression":1,"normalization":true,"amplification":100}
 """
 
-handleInput :: Pixi.Application -> Art -> World -> IO ()
-handleInput app art w = do
+handleInput :: Pixi.Application -> Jfxr.AudioContext -> Art -> World -> IO ()
+handleInput app ac art w = do
   --ctx <- Jfxr.newAudioContext
   --clip <- Jfxr.newClip jfxrStr
   bindKeyDir w Playing "KeyS" DOWN
@@ -34,6 +36,7 @@ handleInput app art w = do
   bindKey w Dead "Enter" $ do
     cleanupSnake
     cleanupFood
+    liftIO $ Jfxr.newClip ((artSinJfxr art) { jfxrWaveform = waveToJfxr SAW }) >>= Jfxr.playClip ac
     initGame app art
     cmap $ \(_::Screen) -> Playing
 {-  addWindowEventListener "keydown" =<< jsFuncFromHs_ (\_ -> do

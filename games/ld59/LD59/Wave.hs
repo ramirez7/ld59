@@ -8,6 +8,14 @@ import Pixi.Types qualified as Pixi
 data Wave = TRI | SIN | SQUARE | SAW | TAN
   deriving (Show, Eq, Ord, Enum, Bounded)
 
+waveToJfxr :: Wave -> String
+waveToJfxr = \case
+  TRI -> "triangle"
+  SIN -> "sine"
+  SQUARE -> "square"
+  SAW -> "sawtooth"
+  TAN -> "tangent"
+
 waveSpriteTint :: Wave -> Pixi.Sprite -> IO ()
 waveSpriteTint w s = setProperty "tint" s (stringAsVal tint)
   where

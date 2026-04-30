@@ -20,6 +20,7 @@ import LD59.Snake
 import Linear.V2
 import LD59.Dir
 import LD59.Screen
+import LD59.Jfxr.JSFFI qualified as Jfxr
 
 -- Export the actual initialization function
 foreign export javascript "wasmMain" main :: IO ()
@@ -27,6 +28,7 @@ foreign export javascript "wasmMain" main :: IO ()
 
 main :: IO ()
 main = do
+  ac <- Jfxr.newAudioContext
   -- Initialize PIXI application
   app <- newApp
   app <- initAppInTarget app "black" "#canvas-container"
@@ -52,7 +54,7 @@ main = do
           tickFoodSpawn app art
         syncSnakeArt
         )
-                                                 
-  handleInput app art w
+
+  handleInput app ac art w
   startTicker gameTicker
   pure ()
