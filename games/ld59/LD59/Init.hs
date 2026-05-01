@@ -13,6 +13,8 @@ import Data.Foldable (for_)
 import LD59.Wave
 import Data.Traversable (for)
 import LD59.Env
+import LD59.Art
+
 
 newFood :: HasEnv => Wave -> V2 Int -> System World ()
 newFood tailWave p = openEnv $ \Env{..} -> do
@@ -23,6 +25,7 @@ newFood tailWave p = openEnv $ \Env{..} -> do
 
 initGame :: HasEnv => System World ()
 initGame = openEnv $ \Env{..} -> do
+  initBG
   headSprite <- liftIO $ newSprite (artHeadTexture envArt)
   liftIO $ addChild envApp headSprite
   hardcodedTail <- for [minBound..] $ \tailWave -> do
@@ -44,6 +47,12 @@ initGame = openEnv $ \Env{..} -> do
   newEntity_ Dead
   newFood TRI (V2 10 10)
 
+initBG :: HasEnv => System World ()
+initBG = openEnv $ \Env{..} -> do
+  bgs <- liftIO $ newTilingSprite (artBG envArt) 1000 1000
+  liftIO $ setSpritePos bgs (V2 0 0)
+  liftIO $ addChild envApp bgs
+  Apecs.set global (BG $ Just bgs)
 
 cleanupSnake :: System World ()
 cleanupSnake = cmapM_ $ \(Snake{..}::Snake) -> do

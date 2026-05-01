@@ -10,13 +10,18 @@ import Data.Word (Word64)
 import Pixi.Types qualified as Pixi
 import LD59.Snake
 import LD59.Dir
-import Data.Monoid (Sum (..))
+import Data.Monoid (Sum (..), First (..))
 import Linear.V2
 import LD59.Wave
 
 data Screen = Title | Playing | Dead deriving stock (Show, Eq)
 
 instance Component Screen where type Storage Screen = Unique Screen
+
+newtype BG = BG { bgSprite :: Maybe Pixi.Sprite }
+  deriving (Semigroup, Monoid) via (First Pixi.Sprite)
+
+instance Component BG where type Storage BG = Global BG
 
 newtype CurrentDir = CurrentDir Dir deriving stock (Show)
 instance Component CurrentDir where type Storage CurrentDir = Unique CurrentDir
@@ -46,4 +51,4 @@ newtype Frame = Frame Word64
 instance Component Frame where type Storage Frame = Global Frame
 
 
-makeWorld "World" [''Snake, ''CurrentDir, ''Frame, ''Screen, ''Food]
+makeWorld "World" [''Snake, ''CurrentDir, ''Frame, ''Screen, ''Food, ''BG]

@@ -99,6 +99,7 @@ library ld59-lib
   hs-source-dirs: games/ld59
   -- cabal-gild: discover games/ld59 --exclude=games/ld59/Main.hs
   exposed-modules:
+    LD59.Art
     LD59.Controls
     LD59.Dir
     LD59.Draw

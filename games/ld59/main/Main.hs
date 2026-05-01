@@ -21,6 +21,7 @@ import Linear.V2
 import LD59.Dir
 import LD59.Screen
 import LD59.Env
+import LD59.Art
 import LD59.Jfxr.JSFFI qualified as Jfxr
 
 -- Export the actual initialization function

@@ -1,7 +1,7 @@
 {-# LANGUAGE ImplicitParams #-}
 module LD59.Env where
 
-import LD59.Draw
+import LD59.Art
 import LD59.Jfxr.JSFFI qualified as Jfxr
 import Pixi.Types qualified as Pixi
 

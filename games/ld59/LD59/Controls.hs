@@ -6,6 +6,7 @@
 module LD59.Controls where
 
 import LD59.World
+import LD59.Art
 import GHC.Wasm.Prim
 import LD59.Dir
 import Apecs

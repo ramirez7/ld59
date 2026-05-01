@@ -138,6 +138,15 @@ foreign import javascript unsafe "new PIXI.Sprite($1)"
 foreign import javascript unsafe "$1.destroy()"
   destroySprite :: Pixi.Sprite -> IO ()
 
+foreign import javascript unsafe """
+new PIXI.TilingSprite({
+  texture: $1,
+  width: $2,
+  height: $3,
+})
+"""
+  newTilingSprite :: Pixi.Texture -> Int -> Int -> IO Pixi.Sprite
+
 -- | Gets a base texture from PIXI's built-in texture cache.
 --
 -- Common texture names include "WHITE" for a white rectangle texture.
@@ -300,8 +309,8 @@ setPropertyKey keys obj value =
 foreign import javascript "$2[$1] = $3"
   setProperty' ::  JSString -> JSVal -> JSVal -> IO ()
 
-setProperty :: IsJSVal a => JSString -> a -> JSVal -> IO ()
-setProperty p o v = setProperty' p (coerce o) v
+setProperty :: (IsJSVal a, IsJSVal b) => JSString -> a -> b -> IO ()
+setProperty p o v = setProperty' p (coerce o) (coerce v)
 
 -- *****************************************************************************
 -- * Type Conversion Functions
