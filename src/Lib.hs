@@ -147,6 +147,15 @@ new PIXI.TilingSprite({
 """
   newTilingSprite :: Pixi.Texture -> Int -> Int -> IO Pixi.Sprite
 
+foreign import javascript unsafe "new PIXI.Container()"
+  newContainer :: IO Pixi.Container
+
+foreign import javascript unsafe "$1.addChild($2)"
+    addContainerChild' :: Pixi.Container -> JSVal -> IO ()
+
+addContainerChild :: IsJSVal a => Pixi.Container -> a -> IO ()
+addContainerChild app a = addContainerChild' app (coerce a)
+
 -- | Gets a base texture from PIXI's built-in texture cache.
 --
 -- Common texture names include "WHITE" for a white rectangle texture.

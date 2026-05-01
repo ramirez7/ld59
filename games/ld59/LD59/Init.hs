@@ -1,4 +1,5 @@
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE OverloadedStrings #-}
 module LD59.Init where
 
 import LD59.World
@@ -53,6 +54,14 @@ initBG = openEnv $ \Env{..} -> do
   liftIO $ setSpritePos bgs (V2 0 0)
   liftIO $ addChild envApp bgs
   Apecs.set global (BG $ Just bgs)
+
+initPlayArea :: Pixi.Application -> IO Pixi.Container
+initPlayArea app = do
+  c <- newContainer
+  addChild app c
+  setProperty "x" c (intAsVal tileSize)
+  setProperty "y" c (intAsVal tileSize)
+  pure c
 
 cleanupSnake :: System World ()
 cleanupSnake = cmapM_ $ \(Snake{..}::Snake) -> do

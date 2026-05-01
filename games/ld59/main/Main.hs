@@ -34,7 +34,8 @@ main = do
   art <- newArt
   -- Initialize PIXI application
   app <- newApp
-  withEnv (Env art ac app) $ do
+  pa <- initPlayArea app
+  withEnv (Env art ac app pa) $ do
     app <- initAppInTarget app "black" "#canvas-container"
     appendToTarget "#canvas-container" app
     screen <- getProperty "screen" app
