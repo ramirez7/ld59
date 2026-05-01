@@ -102,6 +102,7 @@ library ld59-lib
     LD59.Controls
     LD59.Dir
     LD59.Draw
+    LD59.Env
     LD59.Init
     LD59.Jfxr.JSFFI
     LD59.Jfxr.Types
