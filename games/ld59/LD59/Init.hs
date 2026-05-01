@@ -47,9 +47,12 @@ initGame app art = do
 
 
 cleanupSnake :: System World ()
-cleanupSnake = cmapM_ $ \(Snake{..}::Snake) -> liftIO $ do
-  for_ snakeHead  $ \Head{..} -> destroySprite headSprite
-  for_ snakeTail $ \Tail{..} -> destroySprite tailSprite
+cleanupSnake = cmapM_ $ \(Snake{..}::Snake) -> do
+  liftIO $ for_ snakeHead  $ \Head{..} -> destroySprite headSprite
+  cleanupSnakeTail snakeTail
+
+cleanupSnakeTail :: SnakeTail Tail -> System World ()
+cleanupSnakeTail st = liftIO $ for_ st $ \Tail{..} -> destroySprite tailSprite
 
 cleanupFood :: System World ()
 cleanupFood = cmapM $ \Food{..} -> do

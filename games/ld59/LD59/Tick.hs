@@ -10,6 +10,7 @@ import Control.Lens
 import LD59.Draw
 import LD59.Init
 import Linear.V2
+import Data.Foldable (for_)
 import Lib
 import Data.Set qualified as Set
 import Pixi.Types qualified as Pixi
@@ -58,14 +59,22 @@ tickFoodSpawn app art = everyFrame spawnRate $ do
   foodCoords <- cfoldMap $ \Food{..} -> Set.singleton foodPos
   let occupiedCoords = mconcat [snakeCoords, foodCoords]
   let openCoords = filter (flip Set.notMember occupiedCoords) worldCoords
-  wave <- randomFromList [minBound..]
+  wave <- randomFromList [minBound]
   randomFromList openCoords >>= newFood app art wave
 
 tickSnake :: System World ()
 tickSnake = everyFrame snakeRate $ do
   cmap $ \(CurrentDir dir, s::Snake) -> snakeMove dir s
+  -- Check for match
+  -- We do it _before_ eating, so for one tick the match
+  -- is visible.
+  cmapM $ \(s::Snake) -> do
+    let (newSnake, match) = snakeMatch tailWave s
+    for_ match $ \(t, _) ->
+      cleanupSnakeTail t
+    pure newSnake
   -- Check for eat
-  cmapM_ $ \(Food{..}, foodEty) ->
+  cmapM_ $ \(Food{..}, foodEty) -> 
     cmapM_ $ \(s@Snake{..}::Snake, snakeEty) ->
       when (snakeHeadPos snakeHead == foodPos) $ do
         liftIO $ consoleLogShow ("EAT"::String)

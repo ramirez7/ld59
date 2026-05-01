@@ -20,6 +20,8 @@ import Data.Generics.Labels ()
 import Data.List.NonEmpty (NonEmpty((:|)))
 import Data.List.NonEmpty qualified as NEL
 import LD59.Dir
+import Data.Maybe (isJust)
+import Data.List (nub)
 
 data SnakeHead h = SnakeHead
   { snakeHeadVal :: h
@@ -44,6 +46,18 @@ data SnakeF h t = Snake
 snakeLocateTail :: SnakeF h t -> [V2 Int]
 snakeLocateTail Snake{..} =
   drop 1 $ scanl' (\p dir -> p + (negate $ dirV2 dir)) (snakeHeadPos snakeHead) (snakeHeadDir snakeHead : fmap snakeTailDir (snakeTailSegs snakeTail))
+
+snakeMatch :: Eq a => (t -> a) -> SnakeF h t -> (SnakeF h t, Maybe (SnakeTail t, a))
+snakeMatch f Snake{..} =
+  let revtail = reverse $ snakeTailSegs snakeTail
+      (tip, rest) = (take 3 revtail, drop 3 revtail)
+      nubbedTip = nub $ fmap (f . snakeTailVal) tip
+      remakeTail = SnakeTail . reverse
+      match = case (tip, nubbedTip) of
+        ([_,_,_], [a]) -> Just (remakeTail tip, a)
+        _ -> Nothing
+      newTail = if isJust match then remakeTail rest else snakeTail
+  in (Snake{ snakeTail = newTail, .. }, match)
 
 -- This doesn't stop you from moving into the tail
 snakeMove :: Dir -> SnakeF h t -> SnakeF h t
