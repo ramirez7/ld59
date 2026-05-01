@@ -21,17 +21,17 @@ newFood :: HasEnv => Wave -> V2 Int -> System World ()
 newFood tailWave p = openEnv $ \Env{..} -> do
   tailSprite <- liftIO $ newSprite (waveSpriteArt envArt tailWave)
   liftIO $ setSpritePos tailSprite p
-  liftIO $ addChild envApp tailSprite
+  liftIO $ addPlayAreaChild tailSprite
   newEntity_ $ Food Tail{..} p
 
 initGame :: HasEnv => System World ()
 initGame = openEnv $ \Env{..} -> do
   initBG
   headSprite <- liftIO $ newSprite (artHeadTexture envArt)
-  liftIO $ addChild envApp headSprite
+  liftIO $ addPlayAreaChild headSprite
   hardcodedTail <- for [minBound..] $ \tailWave -> do
     tailSprite <- liftIO $ newSprite (waveSpriteArt envArt tailWave)
-    liftIO $ addChild envApp tailSprite
+    liftIO $ addPlayAreaChild tailSprite
     let snakeTailVal = Tail{..}
     let snakeTailDir = RIGHT
     pure SnakeTailSeg{..}
@@ -52,7 +52,7 @@ initBG :: HasEnv => System World ()
 initBG = openEnv $ \Env{..} -> do
   bgs <- liftIO $ newTilingSprite (artBG envArt) 1000 1000
   liftIO $ setSpritePos bgs (V2 0 0)
-  liftIO $ addChild envApp bgs
+  liftIO $ addPlayAreaChild bgs
   Apecs.set global (BG $ Just bgs)
 
 initPlayArea :: Pixi.Application -> IO Pixi.Container
