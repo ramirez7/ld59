@@ -12,23 +12,22 @@ import Linear.V2
 import Data.Foldable (for_)
 import LD59.Wave
 import Data.Traversable (for)
+import LD59.Env
 
-newFood :: Pixi.Application -> Art -> Wave -> V2 Int -> System World ()
-newFood app art tailWave p = do
-  tailSprite <- liftIO $ newSprite (waveSpriteArt art tailWave)
-  liftIO $ waveSpriteTint tailWave tailSprite
-  liftIO $ addChild app tailSprite
+newFood :: HasEnv => Wave -> V2 Int -> System World ()
+newFood tailWave p = openEnv $ \Env{..} -> do
+  tailSprite <- liftIO $ newSprite (waveSpriteArt envArt tailWave)
   liftIO $ setSpritePos tailSprite p
+  liftIO $ addChild envApp tailSprite
   newEntity_ $ Food Tail{..} p
 
-initGame :: Pixi.Application -> Art -> System World ()
-initGame app art = do
-  headSprite <- liftIO $ newSprite (artHeadTexture art)
-  liftIO $ addChild app headSprite
+initGame :: HasEnv => System World ()
+initGame = openEnv $ \Env{..} -> do
+  headSprite <- liftIO $ newSprite (artHeadTexture envArt)
+  liftIO $ addChild envApp headSprite
   hardcodedTail <- for [minBound..] $ \tailWave -> do
-    tailSprite <- liftIO $ newSprite (waveSpriteArt art tailWave)
-    liftIO $ waveSpriteTint tailWave tailSprite
-    liftIO $ addChild app tailSprite
+    tailSprite <- liftIO $ newSprite (waveSpriteArt envArt tailWave)
+    liftIO $ addChild envApp tailSprite
     let snakeTailVal = Tail{..}
     let snakeTailDir = RIGHT
     pure SnakeTailSeg{..}
@@ -43,7 +42,7 @@ initGame app art = do
         }
   newEntity_ (CurrentDir RIGHT, initSnake)
   newEntity_ Dead
-  newFood app art TRI (V2 10 10)
+  newFood TRI (V2 10 10)
 
 
 cleanupSnake :: System World ()

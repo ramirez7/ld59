@@ -15,6 +15,7 @@ import Lib
 import Data.Set qualified as Set
 import Pixi.Types qualified as Pixi
 import Control.Monad.IO.Class
+import LD59.Env
 
 tickFrame :: System World ()
 tickFrame = modify global (succ @Frame)
@@ -53,14 +54,14 @@ cfoldMap
   -> SystemT w m a
 cfoldMap f = cfold (\acc c -> mappend acc (f c)) mempty
 
-tickFoodSpawn :: Pixi.Application -> Art -> System World ()
-tickFoodSpawn app art = everyFrame spawnRate $ do
+tickFoodSpawn :: HasEnv => System World ()
+tickFoodSpawn = everyFrame spawnRate $ do
   snakeCoords <- cfoldMap $ \(s@Snake{..}::Snake) -> Set.fromList (snakeHeadPos snakeHead : snakeLocateTail s)
   foodCoords <- cfoldMap $ \Food{..} -> Set.singleton foodPos
   let occupiedCoords = mconcat [snakeCoords, foodCoords]
   let openCoords = filter (flip Set.notMember occupiedCoords) worldCoords
   wave <- randomFromList [minBound]
-  randomFromList openCoords >>= newFood app art wave
+  randomFromList openCoords >>= newFood wave
 
 tickSnake :: System World ()
 tickSnake = everyFrame snakeRate $ do

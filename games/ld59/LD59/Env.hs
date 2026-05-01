@@ -1,3 +1,4 @@
+{-# LANGUAGE ImplicitParams #-}
 module LD59.Env where
 
 import LD59.Draw
@@ -14,3 +15,6 @@ type HasEnv = (?env :: Env)
 
 withEnv :: Env -> (HasEnv => r) -> r
 withEnv e k = let ?env = e in k
+
+openEnv :: HasEnv => (Env -> r) -> r
+openEnv k = k ?env
