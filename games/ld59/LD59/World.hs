@@ -23,6 +23,11 @@ newtype BG = BG { bgSprite :: Maybe Pixi.Sprite }
 
 instance Component BG where type Storage BG = Global BG
 
+newtype Border = Border { borderSprites :: [Pixi.Sprite] }
+  deriving (Semigroup, Monoid) via ([Pixi.Sprite])
+
+instance Component Border where type Storage Border = Global Border
+
 newtype CurrentDir = CurrentDir Dir deriving stock (Show)
 instance Component CurrentDir where type Storage CurrentDir = Unique CurrentDir
 
@@ -51,4 +56,4 @@ newtype Frame = Frame Word64
 instance Component Frame where type Storage Frame = Global Frame
 
 
-makeWorld "World" [''Snake, ''CurrentDir, ''Frame, ''Screen, ''Food, ''BG]
+makeWorld "World" [''Snake, ''CurrentDir, ''Frame, ''Screen, ''Food, ''BG, ''Border]

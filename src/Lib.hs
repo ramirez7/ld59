@@ -36,6 +36,9 @@ foreign import javascript unsafe "Math.random()"
 foreign import javascript unsafe "new PIXI.Application()"
    newApp :: IO Pixi.Application
 
+foreign import javascript unsafe "new PIXI.Application({ width: $1, height: $2 })"
+   newAppSized :: Int -> Int -> IO Pixi.Application
+
 -- | Creates a new PIXI.js Text object with the specified text and fill color.
 --
 -- @param text The text content to display
@@ -93,6 +96,9 @@ foreign import javascript unsafe "document.body.appendChild($1.canvas)"
 -- @param app The PIXI Application object whose canvas should be appended
 foreign import javascript unsafe "document.querySelector($1).appendChild($2.canvas)"
     appendToTarget :: JSString -> Pixi.Application -> IO ()
+
+foreign import javascript unsafe "PIXI.TexturePool.textureOptions.scaleMode = 'nearest'"
+  setScalingNearestNeighbor :: IO ()
 
 -- *****************************************************************************
 -- * Console Logging

@@ -27,6 +27,7 @@ newFood tailWave p = openEnv $ \Env{..} -> do
 initGame :: HasEnv => System World ()
 initGame = openEnv $ \Env{..} -> do
   initBG
+  initBorder
   headSprite <- liftIO $ newSprite (artHeadTexture envArt)
   liftIO $ addPlayAreaChild headSprite
   hardcodedTail <- for [minBound..] $ \tailWave -> do
@@ -50,10 +51,25 @@ initGame = openEnv $ \Env{..} -> do
 
 initBG :: HasEnv => System World ()
 initBG = openEnv $ \Env{..} -> do
-  bgs <- liftIO $ newTilingSprite (artBG envArt) 1000 1000
+  bgs <- liftIO $ newTilingSprite (artBG envArt) playAreaWidth playAreaHeight
   liftIO $ setSpritePos bgs (V2 0 0)
   liftIO $ addPlayAreaChild bgs
   Apecs.set global (BG $ Just bgs)
+
+initBorder :: HasEnv => System World ()
+initBorder = do
+  Apecs.set global . Border =<< sequence
+    [ mkBorderSprite artBorderTop (V2 0 0) gameWidth (tileSize)
+    , mkBorderSprite artBorderTop (V2 0 (tileHeight-2)) gameWidth tileSize
+    , mkBorderSprite artBorderSide (V2 0 1) tileSize (gameHeight - tileSize*2)
+    , mkBorderSprite artBorderSide (V2 (tileWidth-1) 1) tileSize (gameHeight - tileSize*2)
+    ]
+  where
+    mkBorderSprite f p w h = openEnv $ \Env{..} -> liftIO $ do
+      b <- liftIO $ newTilingSprite (f envArt) w h
+      setSpritePos b p
+      liftIO $ addChild envApp b
+      pure b
 
 initPlayArea :: Pixi.Application -> IO Pixi.Container
 initPlayArea app = do

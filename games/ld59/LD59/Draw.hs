@@ -24,9 +24,6 @@ import LD59.Art
 import LD59.Env
 import LD59.Dir
 
-tileSize :: Int
-tileSize = 32
-
 test :: System World ()
 test = cmapM_ $ \CurrentDir{} -> pure ()
 
