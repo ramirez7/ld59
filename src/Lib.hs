@@ -66,7 +66,7 @@ foreign import javascript safe
 -- TODO: JSFFI is weird with await..why do we need to do this return stuff?
 foreign import javascript safe
   """
-  const r = await $1.init({width: $2, height: $3})
+  const r = await $1.init({width: $2, height: $3, antialias: false})
   return $1
   """
   initAppSized :: Pixi.Application -> Int -> Int -> IO Pixi.Application

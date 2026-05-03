@@ -30,11 +30,11 @@ tileSize = 32
 
 tileDims :: V2 Int
 tileWidth, tileHeight :: Int
-tileDims@(V2 tileWidth tileHeight) = V2 20 20
+tileDims@(V2 tileWidth tileHeight) = V2 12 20
 
 gameDims :: V2 Int
 gameWidth, gameHeight :: Int
-gameDims@(V2 gameWidth gameHeight) = V2 (tileHeight*tileSize) (tileWidth*tileSize)
+gameDims@(V2 gameWidth gameHeight) = V2 (tileWidth*tileSize) (tileHeight*tileSize)
 
 playAreaWidth, playAreaHeight :: Int
 (V2 playAreaWidth playAreaHeight) = gameDims - pure (tileSize*2)
