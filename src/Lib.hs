@@ -63,6 +63,14 @@ foreign import javascript safe
  """
  initApp :: JSVal -> JSString -> IO JSVal
 
+-- TODO: JSFFI is weird with await..why do we need to do this return stuff?
+foreign import javascript safe
+  """
+  const r = await $1.init({width: $2, height: $3})
+  return $1
+  """
+  initAppSized :: Pixi.Application -> Int -> Int -> IO Pixi.Application
+
 -- | Initializes a PIXI.js Application with the given background color and resizes it to a target element.
 --
 -- This function uses a safe import because it needs to await the result of

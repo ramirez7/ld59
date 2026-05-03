@@ -26,8 +26,6 @@ newFood tailWave p = openEnv $ \Env{..} -> do
 
 initGame :: HasEnv => System World ()
 initGame = openEnv $ \Env{..} -> do
-  initBG
-  initBorder
   headSprite <- liftIO $ newSprite (artHeadTexture envArt)
   liftIO $ addPlayAreaChild headSprite
   hardcodedTail <- for [minBound..] $ \tailWave -> do
@@ -60,7 +58,7 @@ initBorder :: HasEnv => System World ()
 initBorder = do
   Apecs.set global . Border =<< sequence
     [ mkBorderSprite artBorderTop (V2 0 0) gameWidth (tileSize)
-    , mkBorderSprite artBorderTop (V2 0 (tileHeight-2)) gameWidth tileSize
+    , mkBorderSprite artBorderTop (V2 0 (tileHeight-1)) gameWidth tileSize
     , mkBorderSprite artBorderSide (V2 0 1) tileSize (gameHeight - tileSize*2)
     , mkBorderSprite artBorderSide (V2 (tileWidth-1) 1) tileSize (gameHeight - tileSize*2)
     ]

@@ -33,11 +33,15 @@ main = do
   ac <- Jfxr.newAudioContext
   art <- newArt
   -- Initialize PIXI application
-  app <- newApp
+  app <- do
+    x <- newApp
+    x' <- initAppSized x gameWidth gameHeight
+    appendCanvas x'
+    pure x'
   pa <- initPlayArea app
   withEnv (Env art ac app pa) $ do
-    app <- initAppInTarget app "black" "#canvas-container"
-    appendToTarget "#canvas-container" app
+    setScalingNearestNeighbor
+    --appendToTarget "#canvas-container" app
     screen <- getProperty "screen" app
     screen_width <- valAsInt <$> getProperty "width" screen
     screen_height <- valAsInt <$> getProperty "height" screen
@@ -49,7 +53,11 @@ main = do
     
     
     w <- initWorld
-    runWith w initGame
+    runWith w $ do
+      initBG
+      initBorder
+      liftIO $ addChild app pa
+      initGame
     
     callAddTicker gameTicker =<< jsFuncFromHs_
       (\_ -> runWith w $ do

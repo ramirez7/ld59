@@ -31,7 +31,7 @@ spawnRate :: Rate
 spawnRate = Rate (5 * 60) 27
 
 worldBounds :: V2 Int
-worldBounds = V2 30 30
+worldBounds = tileDims - pure 3 -- border + 1
 
 worldCoords :: [V2 Int]
 worldCoords = do
