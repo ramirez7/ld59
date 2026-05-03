@@ -65,6 +65,7 @@ main = do
             tickFrame
             tickSnake
             tickFoodSpawn
+            animTail
           syncSnakeArt
           )
     

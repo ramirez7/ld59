@@ -27,6 +27,9 @@ data Rate = Rate
 snakeRate :: Rate
 snakeRate = Rate 20 0
 
+tailAnimRate :: Rate
+tailAnimRate = Rate 10 0
+
 spawnRate :: Rate
 spawnRate = Rate (5 * 60) 27
 
@@ -62,6 +65,11 @@ tickFoodSpawn = everyFrame spawnRate $ do
   let openCoords = filter (flip Set.notMember occupiedCoords) worldCoords
   wave <- randomFromList [minBound]
   randomFromList openCoords >>= newFood wave
+
+animTail :: System World ()
+animTail = everyFrame tailAnimRate $ do
+  cmapM_ $ \(s::Snake) ->
+    for_ (snakeTail s) $ \Tail{..} -> liftIO $ mirrorFlipSpriteH tailSprite
 
 tickSnake :: System World ()
 tickSnake = everyFrame snakeRate $ do

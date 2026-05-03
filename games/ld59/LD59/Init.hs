@@ -34,7 +34,6 @@ initGame = openEnv $ \Env{..} -> do
   hardcodedTail <- for [minBound..] $ \tailWave -> do
     tailSprite <- liftIO $ newSprite (waveSpriteArt envArt tailWave)
     liftIO $ centerAnchorSprite tailSprite
-    liftIO $ mirrorSprite tailSprite
     liftIO $ addPlayAreaChild tailSprite
     let snakeTailVal = Tail{..}
     let snakeTailDir = RIGHT
