@@ -20,6 +20,7 @@ import LD59.Art
 newFood :: HasEnv => Wave -> V2 Int -> System World ()
 newFood tailWave p = openEnv $ \Env{..} -> do
   tailSprite <- liftIO $ newSprite (waveSpriteArt envArt tailWave)
+  liftIO $ centerAnchorSprite tailSprite
   liftIO $ setSpritePos tailSprite p
   liftIO $ addPlayAreaChild tailSprite
   newEntity_ $ Food Tail{..} p
@@ -27,9 +28,13 @@ newFood tailWave p = openEnv $ \Env{..} -> do
 initGame :: HasEnv => System World ()
 initGame = openEnv $ \Env{..} -> do
   headSprite <- liftIO $ newSprite (artHeadTexture envArt)
-  liftIO $ addPlayAreaChild headSprite
+  liftIO $ do
+    centerAnchorSprite headSprite
+    addPlayAreaChild headSprite
   hardcodedTail <- for [minBound..] $ \tailWave -> do
     tailSprite <- liftIO $ newSprite (waveSpriteArt envArt tailWave)
+    liftIO $ centerAnchorSprite tailSprite
+    liftIO $ mirrorSprite tailSprite
     liftIO $ addPlayAreaChild tailSprite
     let snakeTailVal = Tail{..}
     let snakeTailDir = RIGHT

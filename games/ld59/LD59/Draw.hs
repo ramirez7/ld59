@@ -30,9 +30,22 @@ test = cmapM_ $ \CurrentDir{} -> pure ()
 setSpritePos :: Pixi.Sprite -> V2 Int -> IO ()
 setSpritePos s v2 = do
   let v2Screen = v2 ^* tileSize
-  setProperty "x" s (intAsVal $ v2Screen ^. _x)
-  setProperty "y" s (intAsVal $ v2Screen ^. _y)   
+  xAnchor <- valAsFloat <$> getPropertyKey ["anchor", "x"] s
+  yAnchor <- valAsFloat <$> getPropertyKey ["anchor", "y"] s
+  let xOff = round ((fromIntegral tileSize) * xAnchor)
+  let yOff = round ((fromIntegral tileSize) * yAnchor)
+  setProperty "x" s (intAsVal $ (v2Screen ^. _x) + xOff)
+  setProperty "y" s (intAsVal $ (v2Screen ^. _y) + yOff)
 
+mirrorSprite :: Pixi.Sprite -> IO ()
+mirrorSprite s = do
+  y <- valAsInt <$> getPropertyKey ["scale", "y"] s
+  setPropertyKey ["scale", "y"] s (intAsVal $ negate y)
+
+centerAnchorSprite :: Pixi.Sprite -> IO ()
+centerAnchorSprite s = do
+  setPropertyKey ["anchor", "x"] s (floatAsVal 0.5)
+  setPropertyKey ["anchor", "y"] s (floatAsVal 0.5)
 setSpriteTexture :: Pixi.Sprite -> Pixi.Texture -> IO ()
 setSpriteTexture s t = setProperty "texture" s t
 
